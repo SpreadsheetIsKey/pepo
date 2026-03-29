@@ -483,6 +483,21 @@
 
     tr:last-child td { border-bottom: none; }
 
+    tr.t-done {
+      background: var(--green-bg);
+    }
+
+    tr.t-done td {
+      color: var(--green);
+      text-decoration: line-through;
+      opacity: 0.8;
+    }
+
+    tr.t-done td:first-child {
+      color: var(--green);
+      font-weight: 600;
+    }
+
     .ticket {
       border-radius: 7px;
       margin-bottom: 10px;
@@ -849,7 +864,7 @@
                 <tr><th>ID</th><th>Ticket</th><th>Milestone</th><th>Priority</th></tr>
               </thead>
               <tbody>
-                <tr><td>T-01</td><td>Project setup &amp; Supabase init</td><td>1 · Auth</td><td><span class="t-priority p-must">Must</span></td></tr>
+                <tr class="t-done"><td>T-01</td><td>Project setup &amp; Supabase init</td><td>1 · Auth</td><td><span class="t-priority p-must">Must</span></td></tr>
                 <tr><td>T-02</td><td>Google OAuth login</td><td>1 · Auth</td><td><span class="t-priority p-must">Must</span></td></tr>
                 <tr><td>T-03</td><td>Magic link email login</td><td>1 · Auth</td><td><span class="t-priority p-must">Must</span></td></tr>
                 <tr><td>T-04</td><td>CSV upload &amp; parse</td><td>2 · Upload</td><td><span class="t-priority p-must">Must</span></td></tr>

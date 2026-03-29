@@ -1,0 +1,1252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Financial Clarity Engine — MVP Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg:        #f5f4f0;
+      --bg2:       #eeecea;
+      --surface:   #ffffff;
+      --border:    #d8d5cf;
+      --border2:   #c8c4bc;
+      --text:      #1a1917;
+      --muted:     #6b6860;
+      --muted2:    #807b73;
+
+      --accent:    #1d4ed8;
+      --accent-bg: #eff6ff;
+      --accent-b:  #bfdbfe;
+
+      --green:     #15803d;
+      --green-bg:  #f0fdf4;
+      --green-b:   #bbf7d0;
+
+      --amber:     #b45309;
+      --amber-bg:  #fffbeb;
+      --amber-b:   #fde68a;
+
+      --red:       #b91c1c;
+      --red-bg:    #fef2f2;
+      --red-b:     #fecaca;
+
+      --purple:    #6d28d9;
+      --purple-bg: #f5f3ff;
+      --purple-b:  #ddd6fe;
+
+      --sans: 'DM Sans', sans-serif;
+      --mono: 'DM Mono', monospace;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.05);
+      --content-max: 860px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 14px;
+      line-height: 1.65;
+    }
+
+    :focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 260px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      padding: 28px 0 56px;
+    }
+
+    .brand {
+      padding: 0 20px 20px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 12px;
+    }
+
+    .brand-tag,
+    .nav-group-label,
+    .eyebrow,
+    .meta-label,
+    .section-sub,
+    .done-label,
+    .callout-label,
+    .ticket-id,
+    .t-section-label,
+    .progress-meta,
+    .nav-badge {
+      font-family: var(--mono);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .brand-tag {
+      font-size: 10px;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+
+    .brand-name {
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+
+    .nav-group-label {
+      font-size: 10px;
+      color: var(--muted2);
+      padding: 14px 20px 6px;
+    }
+
+    .sidebar a {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 20px;
+      text-decoration: none;
+      font-size: 12.5px;
+      color: var(--muted);
+      border-right: 2px solid transparent;
+      transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+      line-height: 1.4;
+    }
+
+    .sidebar a:hover {
+      color: var(--text);
+      background: var(--bg);
+    }
+
+    .sidebar a.active {
+      color: var(--accent);
+      background: var(--accent-bg);
+      border-right-color: var(--accent);
+      font-weight: 500;
+    }
+
+    .sidebar a.sub {
+      padding-left: 32px;
+      font-size: 11.5px;
+      color: var(--muted2);
+    }
+
+    .nav-badge {
+      font-size: 9px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-left: auto;
+      border: 1px solid var(--accent-b);
+      background: var(--accent-bg);
+      color: var(--accent);
+    }
+
+    .main {
+      min-width: 0;
+      padding: 52px 52px 120px;
+    }
+
+    .main-inner {
+      max-width: var(--content-max);
+    }
+
+    .page-header {
+      margin-bottom: 52px;
+      padding-bottom: 28px;
+      border-bottom: 2px solid var(--text);
+    }
+
+    .eyebrow {
+      font-size: 10px;
+      color: var(--muted2);
+      margin-bottom: 10px;
+    }
+
+    .page-header h1 {
+      font-size: 34px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      line-height: 1.12;
+      margin: 0 0 10px;
+    }
+
+    .subtitle {
+      margin: 0;
+      font-size: 15px;
+      color: var(--muted);
+      max-width: 620px;
+      line-height: 1.65;
+    }
+
+    .header-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px 24px;
+      margin-top: 20px;
+    }
+
+    .meta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 140px;
+    }
+
+    .meta-label {
+      font-size: 10px;
+      color: var(--muted2);
+    }
+
+    .meta-value {
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .section {
+      margin-bottom: 56px;
+      scroll-margin-top: 28px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      margin-bottom: 18px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-header h2 {
+      margin: 0;
+      font-size: 19px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+
+    .section-sub {
+      font-size: 11px;
+      color: var(--muted2);
+    }
+
+    p {
+      color: var(--muted);
+      margin: 0 0 12px;
+      max-width: 720px;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 52px 0;
+    }
+
+    .done-statement,
+    .callout,
+    .progress-wrap,
+    .ticket,
+    .table-wrap,
+    .phase-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .done-statement {
+      background: var(--green-bg);
+      border-color: var(--green-b);
+      border-left: 3px solid var(--green);
+      border-radius: 6px;
+      padding: 14px 18px;
+      margin: 14px 0;
+      font-size: 13.5px;
+      line-height: 1.6;
+      color: var(--text);
+      max-width: 720px;
+    }
+
+    .done-label {
+      font-size: 10px;
+      color: var(--green);
+      margin-bottom: 4px;
+    }
+
+    .callout {
+      border-radius: 6px;
+      padding: 13px 17px;
+      margin: 14px 0;
+      font-size: 13px;
+      line-height: 1.6;
+      max-width: 720px;
+    }
+
+    .callout.blue   { background: var(--accent-bg); border-color: var(--accent-b); color: var(--accent); }
+    .callout.amber  { background: var(--amber-bg);  border-color: var(--amber-b);  color: var(--amber); }
+    .callout.red    { background: var(--red-bg);    border-color: var(--red-b);    color: var(--red); }
+
+    .callout-label {
+      font-size: 10px;
+      opacity: 0.82;
+      margin-bottom: 3px;
+    }
+
+    .callout p {
+      color: inherit;
+      margin: 0;
+      max-width: 100%;
+      font-size: 13px;
+    }
+
+    .phase-card {
+      border-left: 3px solid var(--accent);
+      border-radius: 8px;
+      padding: 20px 24px;
+      max-width: 720px;
+    }
+
+    .phase-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .phase-badge {
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 3px 9px;
+      border-radius: 3px;
+      background: var(--accent-bg);
+      color: var(--accent);
+    }
+
+    .phase-title {
+      font-size: 14px;
+      font-weight: 600;
+      flex: 1;
+    }
+
+    .phase-status {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--muted2);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .feature-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .feature-item {
+      display: flex;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .fi-icon {
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .feature-item strong {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .feature-bullets {
+      margin: 4px 0 0;
+      padding: 0 0 0 2px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .feature-bullets li {
+      list-style: none;
+      font-size: 12.5px;
+      color: var(--muted2);
+      padding-left: 14px;
+      position: relative;
+    }
+
+    .feature-bullets li::before {
+      content: "–";
+      position: absolute;
+      left: 0;
+      color: var(--border2);
+    }
+
+    .progress-wrap {
+      border-radius: 7px;
+      padding: 18px 22px;
+      margin-bottom: 20px;
+      max-width: 720px;
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .progress-title {
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .progress-meta {
+      font-size: 11px;
+      color: var(--muted2);
+    }
+
+    .progress-bar {
+      height: 6px;
+      background: var(--bg2);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--green);
+      border-radius: 999px;
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    .table-wrap {
+      border-radius: 7px;
+      overflow-x: auto;
+      max-width: 720px;
+      margin: 14px 0;
+    }
+
+    table {
+      width: 100%;
+      min-width: 580px;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    th {
+      text-align: left;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted2);
+      padding: 10px 14px;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      color: var(--muted);
+      vertical-align: top;
+    }
+
+    td:first-child {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    .ticket {
+      border-radius: 7px;
+      margin-bottom: 10px;
+      overflow: hidden;
+      max-width: 720px;
+      transition: box-shadow 0.15s ease;
+    }
+
+    .ticket:hover {
+      box-shadow: var(--shadow-md);
+    }
+
+    .ticket-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      padding: 12px 16px;
+      border: 0;
+      background: transparent;
+      text-align: left;
+      cursor: pointer;
+      font: inherit;
+      color: inherit;
+    }
+
+    .ticket-id {
+      font-size: 10px;
+      color: var(--muted2);
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 2px 6px;
+      flex-shrink: 0;
+    }
+
+    .ticket-title {
+      font-size: 13px;
+      font-weight: 500;
+      flex: 1;
+    }
+
+    .t-priority {
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 2px 7px;
+      border-radius: 3px;
+      flex-shrink: 0;
+      border: 1px solid transparent;
+    }
+
+    .p-must {
+      background: var(--red-bg);
+      color: var(--red);
+      border-color: var(--red-b);
+    }
+
+    .p-should {
+      background: var(--amber-bg);
+      color: var(--amber);
+      border-color: var(--amber-b);
+    }
+
+    .ticket-toggle {
+      color: var(--muted2);
+      transition: transform 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .ticket.is-open .ticket-toggle {
+      transform: rotate(180deg);
+    }
+
+    .ticket-body {
+      border-top: 1px solid var(--border);
+      padding: 16px 16px 16px 40px;
+      display: none;
+    }
+
+    .ticket.is-open .ticket-body {
+      display: block;
+    }
+
+    .t-section-label {
+      font-size: 10px;
+      color: var(--muted2);
+      margin: 14px 0 7px;
+    }
+
+    .t-section-label:first-child { margin-top: 0; }
+
+    .not-in-mvp {
+      margin-top: 12px;
+      padding: 9px 12px;
+      background: var(--bg2);
+      border-radius: 4px;
+      font-size: 12px;
+      color: var(--muted2);
+      font-style: italic;
+    }
+
+    .not-in-mvp strong {
+      color: var(--muted);
+      font-style: normal;
+    }
+
+    .ac-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .ac-item {
+      display: grid;
+      grid-template-columns: 18px 1fr;
+      gap: 10px;
+      align-items: start;
+      color: var(--muted);
+      font-size: 12.5px;
+      line-height: 1.5;
+      cursor: pointer;
+    }
+
+    .ac-native {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .ac-check {
+      width: 16px;
+      height: 16px;
+      border: 1.5px solid var(--border2);
+      border-radius: 4px;
+      background: var(--surface);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 1px;
+      flex-shrink: 0;
+      transition: background 0.12s ease, border-color 0.12s ease;
+    }
+
+    .ac-native:focus-visible + .ac-check {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .ac-native:checked + .ac-check {
+      background: var(--green);
+      border-color: var(--green);
+    }
+
+    .ac-native:checked + .ac-check::after {
+      content: "✓";
+      color: white;
+      font-size: 9px;
+      font-weight: 700;
+    }
+
+    .ac-native:checked ~ .ac-text {
+      text-decoration: line-through;
+      color: var(--muted2);
+    }
+
+    code {
+      font-family: var(--mono);
+      font-size: 11.5px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 1px 5px;
+      color: var(--accent);
+    }
+
+    @media (max-width: 1100px) {
+      .layout { grid-template-columns: 1fr; }
+      .sidebar {
+        position: static;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        padding: 18px 0 20px;
+      }
+      .main { padding: 34px 24px 96px; }
+    }
+
+    @media (max-width: 760px) {
+      .main { padding: 28px 18px 80px; }
+      .page-header h1 { font-size: 28px; }
+      .ticket-body { padding: 14px; }
+    }
+
+    @media (max-width: 520px) {
+      .page-header h1 { font-size: 24px; }
+      .ticket-header {
+        align-items: flex-start;
+        flex-wrap: wrap;
+      }
+      .ticket-title {
+        width: 100%;
+        order: 2;
+      }
+      table { min-width: 520px; }
+      .sidebar a { padding-left: 16px; padding-right: 16px; }
+      .sidebar a.sub { padding-left: 26px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar" aria-label="MVP navigation">
+      <div class="brand">
+        <div class="brand-tag">MVP Ticket Tracker</div>
+        <div class="brand-name">Financial Clarity Engine</div>
+      </div>
+
+      <div class="nav-group-label">Phase 1</div>
+      <a href="#phase1">Overview <span class="nav-badge">active</span></a>
+      <a href="#mvp-overview" class="sub">↳ Definition of done</a>
+      <a href="#mvp-progress" class="sub">↳ Progress tracker</a>
+
+      <div class="nav-group-label">Milestones</div>
+      <a href="#milestone1">M1 · Auth</a>
+      <a href="#milestone2">M2 · Upload</a>
+      <a href="#milestone3">M3 · Categorization</a>
+      <a href="#milestone4">M4 · Insights</a>
+      <a href="#milestone5">M5 · Ship</a>
+
+      <div class="nav-group-label">Link</div>
+      <a href="reference.html">Back to reference</a>
+    </aside>
+
+    <main class="main">
+      <div class="main-inner">
+        <header class="page-header">
+          <div class="eyebrow">Execution board</div>
+          <h1>Phase 1 — MVP Tracker</h1>
+          <p class="subtitle">
+            This file is only for shipping the MVP: scope, definition of done, milestone tickets, and acceptance criteria.
+          </p>
+
+          <div class="header-meta">
+            <div class="meta-item">
+              <span class="meta-label">Phase</span>
+              <span class="meta-value">1 — Foundation MVP</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Tickets</span>
+              <span class="meta-value">14 across 5 milestones</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Goal</span>
+              <span class="meta-value">Ship a usable Phase 1</span>
+            </div>
+          </div>
+        </header>
+
+        <section class="section" id="phase1">
+          <div class="section-header">
+            <h2>Phase 1 — Foundation (MVP)</h2>
+            <span class="section-sub">build this first</span>
+          </div>
+
+          <div class="phase-card">
+            <div class="phase-header">
+              <span class="phase-badge">Phase 1</span>
+              <span class="phase-title">Foundation — MVP</span>
+              <span class="phase-status">14 tickets · 5 milestones</span>
+            </div>
+
+            <div class="feature-list">
+              <div class="feature-item">
+                <span class="fi-icon">🔐</span>
+                <div>
+                  <strong>Secure Login</strong>
+                  <ul class="feature-bullets">
+                    <li>Google OAuth + magic link email. No BankID, no Vipps.</li>
+                    <li>T-01 Setup · T-02 Google OAuth · T-03 Magic link</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="feature-item">
+                <span class="fi-icon">📂</span>
+                <div>
+                  <strong>Manual Data Input</strong>
+                  <ul class="feature-bullets">
+                    <li>CSV/PDF upload. Parsers for DNB, Nordea, Sparebank 1. SHA-256 dedup.</li>
+                    <li>PDF parsing is fragile — cut to CSV-only if needed.</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="feature-item">
+                <span class="fi-icon">🏷️</span>
+                <div>
+                  <strong>Transaction Categorization</strong>
+                  <ul class="feature-bullets">
+                    <li>Rule-based, no ML. Fixed categories. Fast correction flow.</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="feature-item">
+                <span class="fi-icon">📊</span>
+                <div>
+                  <strong>Basic Insights</strong>
+                  <ul class="feature-bullets">
+                    <li>Transaction list, category dashboard, optional monthly summary.</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="feature-item">
+                <span class="fi-icon">🚀</span>
+                <div>
+                  <strong>Ship</strong>
+                  <ul class="feature-bullets">
+                    <li>RLS before real usage. Deploy and verify live flow.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="mvp-overview">
+          <div class="section-header"><h2>Definition of done</h2></div>
+
+          <div class="done-statement">
+            <div class="done-label">MVP is done when</div>
+            A real person can visit the deployed URL, sign in with Google, upload a CSV or PDF bank statement from a Norwegian bank, see their transactions automatically categorized, correct any wrong categories in two taps, and view a visual summary of where their money went that month.
+          </div>
+
+          <div class="callout amber">
+            <div class="callout-label">Explicitly out of scope for MVP</div>
+            <p>Subscriptions detection, savings goals, debt tracking, loan contracts, AI insights, forecasting, sole proprietor mode, multi-account support, bank integrations, mobile app.</p>
+          </div>
+
+          <div class="callout blue">
+            <div class="callout-label">The one question MVP must answer</div>
+            <p>Will a real Norwegian user trust this app enough to upload their bank statement and find the result useful?</p>
+          </div>
+        </section>
+
+        <section class="section" id="mvp-progress">
+          <div class="progress-wrap" aria-live="polite">
+            <div class="progress-label">
+              <span class="progress-title">MVP completion</span>
+              <span class="progress-meta" id="progress-text">0 / 14 tickets</span>
+            </div>
+            <div class="progress-bar" aria-hidden="true">
+              <div class="progress-fill" id="progress-fill"></div>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>ID</th><th>Ticket</th><th>Milestone</th><th>Priority</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>T-01</td><td>Project setup &amp; Supabase init</td><td>1 · Auth</td><td><span class="t-priority p-must">Must</span></td></tr>
+                <tr><td>T-02</td><td>Google OAuth login</td><td>1 · Auth</td><td><span class="t-priority p-must">Must</span></td></tr>
+                <tr><td>T-03</td><td>Magic link email login</td><td>1 · Auth</td><td><span class="t-priority p-must">Must</span></td></tr>
+                <tr><td>T-04</td><td>CSV upload &amp; parse</td><td>2 · Upload</td><td><span class="t-priority p-must">Must</span></td></tr>
+                <tr><td>T-05</td><td>PDF upload &amp; parse</td><td>2 · Upload</td><td><span class="t-priority p-must">Must</span></td></tr>
+                <tr><td>T-06</td><td>Transaction deduplication</td><td>2 · Upload</td><td><span class="t-priority p-must">Must</span></td></tr>
+                <tr><td>T-07</td><td>Category data model &amp; seed</td><td>3 · Categorization</td><td><span class="t-priority p-must">Must</span></td></tr>
+                <tr><td>T-08</td><td>Rule-based categorization engine</td><td>3 · Categorization</td><td><span class="t-priority p-must">Must</span></td></tr>
+                <tr><td>T-09</td><td>Category correction UI</td><td>3 · Categorization</td><td><span class="t-priority p-must">Must</span></td></tr>
+                <tr><td>T-10</td><td>Transaction list view</td><td>4 · Insights</td><td><span class="t-priority p-must">Must</span></td></tr>
+                <tr><td>T-11</td><td>Spending category dashboard</td><td>4 · Insights</td><td><span class="t-priority p-must">Must</span></td></tr>
+                <tr><td>T-12</td><td>Monthly income vs expense summary</td><td>4 · Insights</td><td><span class="t-priority p-should">Should</span></td></tr>
+                <tr><td>T-13</td><td>Row-level security (RLS)</td><td>5 · Ship</td><td><span class="t-priority p-must">Must</span></td></tr>
+                <tr><td>T-14</td><td>Deploy to Vercel &amp; smoke test</td><td>5 · Ship</td><td><span class="t-priority p-must">Must</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="section" id="milestone1">
+          <div class="section-header"><h2>M1 — Auth</h2><span class="section-sub">3 tickets</span></div>
+
+          <article class="ticket" data-ticket="T-01">
+            <button class="ticket-header" type="button" aria-expanded="false" aria-controls="ticket-body-T-01">
+              <span class="ticket-id">T-01</span>
+              <span class="ticket-title">Project setup &amp; Supabase init</span>
+              <span class="t-priority p-must">Must</span>
+              <span class="ticket-toggle" aria-hidden="true">▼</span>
+            </button>
+            <div class="ticket-body" id="ticket-body-T-01">
+              <div class="t-section-label">Acceptance criteria</div>
+              <div class="ac-list">
+                <label class="ac-item"><input class="ac-native" type="checkbox" data-check="T-01-1"><span class="ac-check" aria-hidden="true"></span><span class="ac-text"><code>npx create-next-app</code> with TypeScript and App Router. Repo pushed to GitHub.</span></label>
+                <label class="ac-item"><input class="ac-native" type="checkbox" data-check="T-01-2"><span class="ac-check" aria-hidden="true"></span><span class="ac-text">Supabase project created and env configured.</span></label>
+                <label class="ac-item"><input class="ac-native" type="checkbox" data-check="T-01-3"><span class="ac-check" aria-hidden="true"></span><span class="ac-text"><code>@supabase/ssr</code> installed and tested.</span></label>
+                <label class="ac-item"><input class="ac-native" type="checkbox" data-check="T-01-4"><span class="ac-check" aria-hidden="true"></span><span class="ac-text">Vercel project linked. Build succeeds from main.</span></label>
+              </div>
+            </div>
+          </article>
+
+          <article class="ticket" data-ticket="T-02">
+            <button class="ticket-header" type="button" aria-expanded="false" aria-controls="ticket-body-T-02">
+              <span class="ticket-id">T-02</span>
+              <span class="ticket-title">Google OAuth login</span>
+              <span class="t-priority p-must">Must</span>
+              <span class="ticket-toggle" aria-hidden="true">▼</span>
+            </button>
+            <div class="ticket-body" id="ticket-body-T-02">
+              <div class="t-section-label">Acceptance criteria</div>
+              <div class="ac-list">
+                <label class="ac-item"><input class="ac-native" type="checkbox" data-check="T-02-1"><span class="ac-check" aria-hidden="true"></span><span class="ac-text">Google OAuth enabled and redirect configured.</span></label>
+                <label class="ac-item"><input class="ac-native" type="checkbox" data-check="T-02-2"><span class="ac-check" aria-hidden="true"></span><span class="ac-text">User can complete sign-in flow.</span></label>
+                <label class="ac-item"><input class="ac-native" type="checkbox" data-check="T-02-3"><span class="ac-check" aria-hidden="true"></span><span class="ac-text">Protected dashboard redirects correctly.</span></label>
+                <label class="ac-item"><input class="ac-native" type="checkbox" data-check="T-02-4"><span class="ac-check" aria-hidden="true"></span><span class="ac-text">Sign-out clears session.</span></label>
+              </div>
+            </div>
+          </article>
+
+          <article class="ticket" data-ticket="T-03">
+            <button class="ticket-header" type="button" aria-expanded="false" aria-controls="ticket-body-T-03">
+              <span class="ticket-id">T-03</span>
+              <span class="ticket-title">Magic link email login</span>
+              <span class="t-priority p-must">Must</span>
+              <span class="ticket-toggle" aria-hidden="true">▼</span>
+            </button>
+            <div class="ticket-body" id="ticket-body-T-03">
+              <div class="t-section-label">Acceptance criteria</div>
+              <div class="ac-list">
+                <label class="ac-item"><input class="ac-native" type="checkbox" data-check="T-03-1"><span class="ac-check" aria-hidden="true"></span><span class="ac-text">Email input and validation on login screen.</span></label>
+                <label class="ac-item"><input class="ac-native" type="checkbox" data-check="T-03-2"><span class="ac-check" aria-hidden="true"></span><span class="ac-text">Magic link sends successfully.</span></label>
+                <label class="ac-item"><input class="ac-native" type="checkbox" data-check="T-03-3"><span class="ac-check" aria-hidden="true"></span><span class="ac-text">Magic link sign-in redirects to dashboard.</span></label>
+                <label class="ac-item"><input class="ac-native" type="checkbox" data-check="T-03-4"><span class="ac-check" aria-hidden="true"></span><span class="ac-text">Expired/used link shows clear error state.</span></label>
+              </div>
+              <div class="not-in-mvp"><strong>Not in MVP:</strong> Password reset, custom email templates.</div>
+            </div>
+          </article>
+        </section>
+
+        <section class="section" id="milestone2">
+          <div class="section-header"><h2>M2 — Upload</h2><span class="section-sub">3 tickets</span></div>
+
+          <article class="ticket" data-ticket="T-04">
+            <button class="ticket-header" type="button" aria-expanded="false" aria-controls="ticket-body-T-04">
+              <span class="ticket-id">T-04</span>
+              <span class="ticket-title">CSV upload &amp; parse</span>
+              <span class="t-priority p-must">Must</span>
+              <span class="ticket-toggle" aria-hidden="true">▼</span>
+            </button>
+            <div class="ticket-body" id="ticket-body-T-04">
+              <div class="t-section-label">Acceptance criteria</div>
+              <div class="ac-list">
+                <label class="ac-item"><input class="ac-native" type="checkbox" data-check="T-04-1"><span class="ac-check" aria-hidden="true"></span><span class="ac-text">CSV-only upload accepted.</span></label>
+                <label class="ac-item"><input class="ac-native" type="checkbox" data-check="T-04-2"><span class="ac-check" aria-hidden="true"></span><span class="ac-text">Parsers support target bank formats.</span></label>
+                <label class="ac-item"><input class="ac-native" type="checkbox" data-check="T-04-3"><span class="ac-check" aria-hidden="true"></span><span class="ac-text">Rows normalize into transaction schema.</span></label>
+                <label class="ac-item"><input class="ac-native" type="checkbox" data-check="T-04-4"><span class="ac-check" aria-hidden="true"></span><span class="ac-text">Transactions insert successfully and report import count.</span></label>
+              </div>
+            </div>
+          </article>
+
+          <article class="ticket" data-ticket="T-05">
+            <button class="ticket-header" type="button" aria-expanded="false" aria-controls="ticket-body-T-05">
+              <span class="ticket-id">T-05</span>
+              <span class="ticket-title">PDF upload &amp; parse</span>
+              <span class="t-priority p-must">Must</span>
+              <span class="ticket-toggle" aria-hidden="true">▼</span>
+            </button>
+            <div class="ticket-body" id="ticket-body-T-05">
+              <div class="t-section-label">Acceptance criteria</div>
+              <div class="ac-list">
+                <label class="ac-item"><input class="ac-native" type="checkbox" data-check="T-05-1"><span class="ac-check" aria-hidden="true"></span><span class="ac-text">PDF upload accepted and routed to parser.</span></label>
+                <label class="ac-item"><input class="ac-native" type="checkbox" data-check="T-05-2"><span class="ac-check" aria-hidden="true"></span><span class="ac-text">Supported PDF exports are parsed into normalized rows.</span></label>
+                <label class="ac-item"><input class="ac-native" type="checkbox" data-check="T-05-3"><span class="ac-check" aria-hidden="true"></span><span class="ac-text">Scanned PDFs return a readable fallback error.</span></label>
+                <label class="ac-item"><input class="ac-native" type="checkbox" data-check="T-05-4"><span class="ac-check" aria-hidden="true"></span><span class="ac-text">Timeouts fail gracefully.</span></label>
+              </div>
+
+              <div class="callout amber">
+                <div class="callout-label">Risk</div>
+                <p>If this becomes unreliable, cut it and launch CSV-only.</p>
+              </div>
+            </div>
+          </article>
+
+          <article class="ticket" data-ticket="T-06">
+            <button class="ticket-header" type="button" aria-expanded="false" aria-controls="ticket-body-T-06">
+              <span class="ticket-id">T-06</span>
+              <span class="ticket-title">Transaction deduplication</span>
+              <span class="t-priority p-must">Must</span>
+              <span class="ticket-toggle" aria-hidden="true">▼</span>
+            </button>
+            <div class="ticket-body" id="ticket-body-T-06">
+              <div class="t-section-label">Acceptance criteria</div>
+              <div class="ac-list">
+                <label class="ac-item"><input class="ac-native" type="checkbox" data-check="T-06-1"><span class="ac-check" aria-hidden="true"></span><span class="ac-text">Import hash is deterministic.</span></label>
+                <label class="ac-item"><input class="ac-native" type="checkbox" data-check="T-06-2"><span class="ac-check" aria-hidden="true"></span><span class="ac-text">Duplicate transactions are skipped on insert.</span></label>
+                <label class="ac-item"><input class="ac-native" type="checkbox" data-check="T-06-3"><span class="ac-check" aria-hidden="true"></span><span class="ac-text">User sees import vs duplicate counts.</span></label>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <section class="section" id="milestone3">
+          <div class="section-header"><h2>M3 — Categorization</h2><span class="section-sub">3 tickets</span></div>
+
+          <article class="ticket" data-ticket="T-07">
+            <button class="ticket-header" type="button" aria-expanded="false" aria-controls="ticket-body-T-07">
+              <span class="ticket-id">T-07</span>
+              <span class="ticket-title">Category data model &amp; seed</span>
+              <span class="t-priority p-must">Must</span>
+              <span class="ticket-toggle" aria-hidden="true">▼</span>
+            </button>
+            <div class="ticket-body" id="ticket-body-T-07">
+              <div class="t-section-label">Acceptance criteria</div>
+              <div class="ac-list">
+                <label class="ac-item"><input class="ac-native" type="checkbox" data-check="T-07-1"><span class="ac-check" aria-hidden="true"></span><span class="ac-text">Categories seeded.</span></label>
+                <label class="ac-item"><input class="ac-native" type="checkbox" data-check="T-07-2"><span class="ac-check" aria-hidden="true"></span><span class="ac-text">Merchant rule table and data seeded.</span></label>
+                <label class="ac-item"><input class="ac-native" type="checkbox" data-check="T-07-3"><span class="ac-check" aria-hidden="true"></span><span class="ac-text">Transactions table supports category source fields.</span></label>
+              </div>
+            </div>
+          </article>
+
+          <article class="ticket" data-ticket="T-08">
+            <button class="ticket-header" type="button" aria-expanded="false" aria-controls="ticket-body-T-08">
+              <span class="ticket-id">T-08</span>
+              <span class="ticket-title">Rule-based categorization engine</span>
+              <span class="t-priority p-must">Must</span>
+              <span class="ticket-toggle" aria-hidden="true">▼</span>
+            </button>
+            <div class="ticket-body" id="ticket-body-T-08">
+              <div class="t-section-label">Acceptance criteria</div>
+              <div class="ac-list">
+                <label class="ac-item"><input class="ac-native" type="checkbox" data-check="T-08-1"><span class="ac-check" aria-hidden="true"></span><span class="ac-text">Exact merchant match layer works.</span></label>
+                <label class="ac-item"><input class="ac-native" type="checkbox" data-check="T-08-2"><span class="ac-check" aria-hidden="true"></span><span class="ac-text">Keyword rule layer works.</span></label>
+                <label class="ac-item"><input class="ac-native" type="checkbox" data-check="T-08-3"><span class="ac-check" aria-hidden="true"></span><span class="ac-text">Fallback to Uncategorized works.</span></label>
+                <label class="ac-item"><input class="ac-native" type="checkbox" data-check="T-08-4"><span class="ac-check" aria-hidden="true"></span><span class="ac-text">Internal transfers and income are flagged correctly.</span></label>
+              </div>
+            </div>
+          </article>
+
+          <article class="ticket" data-ticket="T-09">
+            <button class="ticket-header" type="button" aria-expanded="false" aria-controls="ticket-body-T-09">
+              <span class="ticket-id">T-09</span>
+              <span class="ticket-title">Category correction UI</span>
+              <span class="t-priority p-must">Must</span>
+              <span class="ticket-toggle" aria-hidden="true">▼</span>
+            </button>
+            <div class="ticket-body" id="ticket-body-T-09">
+              <div class="t-section-label">Acceptance criteria</div>
+              <div class="ac-list">
+                <label class="ac-item"><input class="ac-native" type="checkbox" data-check="T-09-1"><span class="ac-check" aria-hidden="true"></span><span class="ac-text">Category badge shown on every row.</span></label>
+                <label class="ac-item"><input class="ac-native" type="checkbox" data-check="T-09-2"><span class="ac-check" aria-hidden="true"></span><span class="ac-text">Picker opens quickly and shows all categories.</span></label>
+                <label class="ac-item"><input class="ac-native" type="checkbox" data-check="T-09-3"><span class="ac-check" aria-hidden="true"></span><span class="ac-text">Selection saves instantly.</span></label>
+                <label class="ac-item"><input class="ac-native" type="checkbox" data-check="T-09-4"><span class="ac-check" aria-hidden="true"></span><span class="ac-text">Undo snackbar works.</span></label>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <section class="section" id="milestone4">
+          <div class="section-header"><h2>M4 — Insights</h2><span class="section-sub">3 tickets</span></div>
+
+          <article class="ticket" data-ticket="T-10">
+            <button class="ticket-header" type="button" aria-expanded="false" aria-controls="ticket-body-T-10">
+              <span class="ticket-id">T-10</span>
+              <span class="ticket-title">Transaction list view</span>
+              <span class="t-priority p-must">Must</span>
+              <span class="ticket-toggle" aria-hidden="true">▼</span>
+            </button>
+            <div class="ticket-body" id="ticket-body-T-10">
+              <div class="t-section-label">Acceptance criteria</div>
+              <div class="ac-list">
+                <label class="ac-item"><input class="ac-native" type="checkbox" data-check="T-10-1"><span class="ac-check" aria-hidden="true"></span><span class="ac-text">Grouped by month and sorted descending.</span></label>
+                <label class="ac-item"><input class="ac-native" type="checkbox" data-check="T-10-2"><span class="ac-check" aria-hidden="true"></span><span class="ac-text">Category and month filtering works.</span></label>
+                <label class="ac-item"><input class="ac-native" type="checkbox" data-check="T-10-3"><span class="ac-check" aria-hidden="true"></span><span class="ac-text">Uncategorized is easy to spot.</span></label>
+              </div>
+            </div>
+          </article>
+
+          <article class="ticket" data-ticket="T-11">
+            <button class="ticket-header" type="button" aria-expanded="false" aria-controls="ticket-body-T-11">
+              <span class="ticket-id">T-11</span>
+              <span class="ticket-title">Spending category dashboard</span>
+              <span class="t-priority p-must">Must</span>
+              <span class="ticket-toggle" aria-hidden="true">▼</span>
+            </button>
+            <div class="ticket-body" id="ticket-body-T-11">
+              <div class="t-section-label">Acceptance criteria</div>
+              <div class="ac-list">
+                <label class="ac-item"><input class="ac-native" type="checkbox" data-check="T-11-1"><span class="ac-check" aria-hidden="true"></span><span class="ac-text">Categories ranked by spend.</span></label>
+                <label class="ac-item"><input class="ac-native" type="checkbox" data-check="T-11-2"><span class="ac-check" aria-hidden="true"></span><span class="ac-text">Totals, percentages, and bars render correctly.</span></label>
+                <label class="ac-item"><input class="ac-native" type="checkbox" data-check="T-11-3"><span class="ac-check" aria-hidden="true"></span><span class="ac-text">Month switching and list filtering work.</span></label>
+              </div>
+            </div>
+          </article>
+
+          <article class="ticket" data-ticket="T-12">
+            <button class="ticket-header" type="button" aria-expanded="false" aria-controls="ticket-body-T-12">
+              <span class="ticket-id">T-12</span>
+              <span class="ticket-title">Monthly income vs expense summary</span>
+              <span class="t-priority p-should">Should</span>
+              <span class="ticket-toggle" aria-hidden="true">▼</span>
+            </button>
+            <div class="ticket-body" id="ticket-body-T-12">
+              <div class="t-section-label">Acceptance criteria</div>
+              <div class="ac-list">
+                <label class="ac-item"><input class="ac-native" type="checkbox" data-check="T-12-1"><span class="ac-check" aria-hidden="true"></span><span class="ac-text">Income, expense, and net values shown.</span></label>
+                <label class="ac-item"><input class="ac-native" type="checkbox" data-check="T-12-2"><span class="ac-check" aria-hidden="true"></span><span class="ac-text">Net color state works.</span></label>
+                <label class="ac-item"><input class="ac-native" type="checkbox" data-check="T-12-3"><span class="ac-check" aria-hidden="true"></span><span class="ac-text">Month changes update summary.</span></label>
+              </div>
+
+              <div class="callout blue">
+                <div class="callout-label">Should-have</div>
+                <p>Ship if T-01–T-11 are done with time remaining. Cut if needed.</p>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <section class="section" id="milestone5">
+          <div class="section-header"><h2>M5 — Ship</h2><span class="section-sub">2 tickets</span></div>
+
+          <article class="ticket" data-ticket="T-13">
+            <button class="ticket-header" type="button" aria-expanded="false" aria-controls="ticket-body-T-13">
+              <span class="ticket-id">T-13</span>
+              <span class="ticket-title">Row-level security (RLS)</span>
+              <span class="t-priority p-must">Must</span>
+              <span class="ticket-toggle" aria-hidden="true">▼</span>
+            </button>
+            <div class="ticket-body" id="ticket-body-T-13">
+              <div class="t-section-label">Acceptance criteria</div>
+              <div class="ac-list">
+                <label class="ac-item"><input class="ac-native" type="checkbox" data-check="T-13-1"><span class="ac-check" aria-hidden="true"></span><span class="ac-text">RLS enabled on transactions.</span></label>
+                <label class="ac-item"><input class="ac-native" type="checkbox" data-check="T-13-2"><span class="ac-check" aria-hidden="true"></span><span class="ac-text">RLS enabled on storage bucket access paths.</span></label>
+                <label class="ac-item"><input class="ac-native" type="checkbox" data-check="T-13-3"><span class="ac-check" aria-hidden="true"></span><span class="ac-text">Manual cross-user access test passes.</span></label>
+              </div>
+
+              <div class="callout red">
+                <div class="callout-label">Non-negotiable</div>
+                <p>Do not share the URL with anyone until this is done and verified on production.</p>
+              </div>
+            </div>
+          </article>
+
+          <article class="ticket" data-ticket="T-14">
+            <button class="ticket-header" type="button" aria-expanded="false" aria-controls="ticket-body-T-14">
+              <span class="ticket-id">T-14</span>
+              <span class="ticket-title">Deploy to Vercel &amp; smoke test</span>
+              <span class="t-priority p-must">Must</span>
+              <span class="ticket-toggle" aria-hidden="true">▼</span>
+            </button>
+            <div class="ticket-body" id="ticket-body-T-14">
+              <div class="t-section-label">Acceptance criteria</div>
+              <div class="ac-list">
+                <label class="ac-item"><input class="ac-native" type="checkbox" data-check="T-14-1"><span class="ac-check" aria-hidden="true"></span><span class="ac-text">All production env vars set.</span></label>
+                <label class="ac-item"><input class="ac-native" type="checkbox" data-check="T-14-2"><span class="ac-check" aria-hidden="true"></span><span class="ac-text">OAuth redirects updated for production.</span></label>
+                <label class="ac-item"><input class="ac-native" type="checkbox" data-check="T-14-3"><span class="ac-check" aria-hidden="true"></span><span class="ac-text">Live smoke test passes end-to-end.</span></label>
+                <label class="ac-item"><input class="ac-native" type="checkbox" data-check="T-14-4"><span class="ac-check" aria-hidden="true"></span><span class="ac-text">No exposed secrets in client-side code.</span></label>
+              </div>
+
+              <div class="done-statement">
+                <div class="done-label">MVP is shipped when</div>
+                This ticket is done. A real person can use the live URL.
+              </div>
+            </div>
+          </article>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    (() => {
+      const STORAGE_KEY = 'financial-clarity-engine-mvp-checks-v1';
+
+      const ticketButtons = document.querySelectorAll('.ticket-header');
+      const checkboxes = document.querySelectorAll('.ac-native');
+      const tickets = document.querySelectorAll('.ticket');
+      const navLinks = document.querySelectorAll('.sidebar a[href^="#"]');
+      const sections = document.querySelectorAll('section[id]');
+
+      function setTicketOpen(ticket, isOpen) {
+        const button = ticket.querySelector('.ticket-header');
+        ticket.classList.toggle('is-open', isOpen);
+        button.setAttribute('aria-expanded', String(isOpen));
+      }
+
+      ticketButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          const ticket = button.closest('.ticket');
+          const isOpen = !ticket.classList.contains('is-open');
+          setTicketOpen(ticket, isOpen);
+        });
+      });
+
+      function loadState() {
+        try {
+          const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+          checkboxes.forEach(input => {
+            if (saved[input.dataset.check]) input.checked = true;
+          });
+        } catch (_) {}
+      }
+
+      function saveState() {
+        const state = {};
+        checkboxes.forEach(input => {
+          state[input.dataset.check] = input.checked;
+        });
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      }
+
+      function updateProgress() {
+        let completed = 0;
+
+        tickets.forEach(ticket => {
+          const ticketChecks = ticket.querySelectorAll('.ac-native');
+          if (!ticketChecks.length) return;
+          const allChecked = Array.from(ticketChecks).every(input => input.checked);
+          if (allChecked) completed++;
+        });
+
+        const total = tickets.length;
+        const percentage = total ? (completed / total) * 100 : 0;
+
+        document.getElementById('progress-text').textContent = `${completed} / ${total} tickets`;
+        document.getElementById('progress-fill').style.width = `${percentage}%`;
+      }
+
+      function setActiveNav(id) {
+        navLinks.forEach(link => {
+          link.classList.toggle('active', link.getAttribute('href') === `#${id}`);
+        });
+      }
+
+      const observer = new IntersectionObserver(entries => {
+        const visible = entries
+          .filter(entry => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+
+        if (visible.length) {
+          setActiveNav(visible[0].target.id);
+        }
+      }, {
+        rootMargin: '-15% 0px -70% 0px',
+        threshold: [0.1, 0.25, 0.5]
+      });
+
+      sections.forEach(section => observer.observe(section));
+
+      checkboxes.forEach(input => {
+        input.addEventListener('change', () => {
+          saveState();
+          updateProgress();
+        });
+      });
+
+      loadState();
+      updateProgress();
+    })();
+  </script>
+</body>
+</html>

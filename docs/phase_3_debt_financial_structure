@@ -1,0 +1,14 @@
+Loan & Debt Tracking
+Overview of:
+Interest rates
+Remaining balances
+Payment schedules
+Manual input initially — no integrations.
+
+Interest Monitoring (Premium)
+Show real cost of loans over time.
+Identify optimization opportunities:
+Refinance suggestions
+Early repayment impact
+
+Auth: existing session only. No changes required.

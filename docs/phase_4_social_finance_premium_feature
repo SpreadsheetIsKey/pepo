@@ -1,0 +1,26 @@
+Private Loan Contracts Between Individuals
+Create a simple written record for a loan between friends — no BankID, no legal machinery, no identity verification.
+The value is clarity and memory, not legal enforceability.
+
+V1 candidate — simple enough to ship alongside or just after the MVP core.
+Priority: after Phase 2 basics, before Phase 3 debt tracking.
+
+Lender flow:
+Define amount, optional interest, repayment date or schedule
+Add borrower by name or email
+App generates a plain-language PDF or shareable summary link
+Borrower clicks link to acknowledge — no account required from them
+
+Payment Tracking
+Mark repayments manually as they happen.
+Running balance visible to lender.
+Optional reminder notifications at due dates.
+
+Dedicated Loan Account
+Each loan acts like its own account — balance, payment log, schedule.
+Fully transparent record for the lender.
+
+What this is: a shared record both parties have seen and acknowledged.
+What this is not: legally binding, a bank product, or a regulated financial instrument.
+
+Auth: existing session for lender. Borrower needs no account. BankID not required — not now, not later for this feature.

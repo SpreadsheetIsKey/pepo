@@ -1,0 +1,46 @@
+Secure Login
+Sign in with Google (primary) or magic link sent to email (fallback). No passwords, no Vipps, no BankID.
+Use Supabase Auth, Clerk, or Auth.js. User record: user_id, email, oauth_provider, created_at.
+
+Tickets:
+T-01 · Project setup & Supabase init
+T-02 · Google OAuth login
+T-03 · Magic link email login
+
+Manual Data Input
+Upload bank statements (CSV/PDF). No integrations required — faster to build and launch.
+Build parsers for DNB, Nordea, Sparebank 1 at minimum.
+Deduplicate on: date + amount + description (SHA-256 hash).
+
+Tickets:
+T-04 · CSV upload & parse
+T-05 · PDF upload & parse (de-prioritize to should-have if too fragile — launch CSV-only if needed)
+T-06 · Transaction deduplication
+
+Transaction Categorization
+Rule-based auto-categorization — no ML in v1. 15 fixed categories, no custom categories.
+Norwegian-seeded merchant dictionary (200+ entries). Fallback: Uncategorized — always visible, never hidden.
+Store category_source ("rule" / "user" / "none") on every transaction.
+
+Tickets:
+T-07 · Category data model & seed data
+T-08 · Rule-based categorization engine
+T-09 · Category correction UI (two taps max, undo snackbar, no confirm dialogs)
+
+Basic Insights
+"Where is my money going?" — visual spending summaries.
+Category breakdown by month. Income vs expenses. Uncategorized surfaces as its own row with a prompt to review.
+
+Tickets:
+T-10 · Transaction list view
+T-11 · Spending category dashboard
+T-12 · Monthly income vs expense summary (should-have — cut if needed)
+
+Ship
+T-13 · Row-level security — non-negotiable before sharing with any real user
+T-14 · Deploy to Vercel & smoke test full end-to-end flow on production URL
+
+Auth: Google OAuth + Magic Link. No BankID needed — users upload their own files, no verified identity required at this stage.
+
+Definition of done:
+A real person can visit the deployed URL, sign in with Google, upload a CSV or PDF bank statement from a Norwegian bank, see their transactions automatically categorized, correct any wrong categories in two taps, and view a visual summary of where their money went that month.

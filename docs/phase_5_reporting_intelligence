@@ -1,0 +1,13 @@
+Advanced Reporting
+Monthly / yearly financial reports.
+Personal mode and sole proprietor mode (separate business flows).
+
+AI Insights
+Spending anomalies
+Forecasting cash flow
+Personalized recommendations:
+"You're likely to overspend this month"
+"You can save X by adjusting Y"
+
+Auth: existing session only. No changes required.
+BankID re-evaluated here only if a future feature explicitly requires verified Norwegian identity (e.g. tax reporting integration). Do not add it speculatively.

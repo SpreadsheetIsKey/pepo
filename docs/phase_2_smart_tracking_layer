@@ -1,0 +1,22 @@
+Internal Transactions Mapping
+Recognize and connect flows like:
+Klarna → bank account
+Credit card → consumer loan
+Prevent double-counting and confusion
+Show true financial position
+Flag large round-number transfers for user review — do not auto-categorize them.
+
+Subscriptions Tracking
+Detect recurring payments automatically.
+Highlight:
+Total monthly subscription cost
+Forgotten services
+Price changes
+
+Savings Overview
+Track progress toward savings goals.
+Simple visualization:
+Current vs target
+Monthly contribution trends
+
+Auth: existing session only. No changes required.

@@ -19,15 +19,22 @@ export function EmailSignup() {
       // Insert email into waitlist table
       const { error } = await supabase
         .from('waitlist')
-        .insert([{ email, created_at: new Date().toISOString() }])
+        .insert([{ email }])
 
       if (error) {
+        console.error('Supabase error:', error)
         // Check if email already exists
         if (error.code === '23505') {
           setStatus('error')
           setMessage('Denne e-posten er allerede registrert!')
+        } else if (error.code === '42501') {
+          // Permission denied - RLS policy issue
+          setStatus('error')
+          setMessage('Kunne ikke registrere e-post. Vennligst prøv igjen.')
+          console.error('RLS policy error - check Supabase policies')
         } else {
-          throw error
+          setStatus('error')
+          setMessage(`Feil: ${error.message}`)
         }
       } else {
         setStatus('success')
@@ -35,7 +42,7 @@ export function EmailSignup() {
         setEmail('')
       }
     } catch (error) {
-      console.error('Error:', error)
+      console.error('Unexpected error:', error)
       setStatus('error')
       setMessage('Noe gikk galt. Prøv igjen senere.')
     }

@@ -1,10 +1,12 @@
 import Link from 'next/link'
 
+type PhaseStatus = 'in-progress' | 'planned' | 'completed'
+
 const phases = [
   {
     phase: 1,
     title: 'Grunnleggende funksjoner (MVP)',
-    status: 'in-progress',
+    status: 'in-progress' as PhaseStatus,
     description: 'De viktigste funksjonene for å komme i gang',
     features: [
       'Sikker innlogging med Google',
@@ -17,7 +19,7 @@ const phases = [
   {
     phase: 2,
     title: 'Smart sporing',
-    status: 'planned',
+    status: 'planned' as PhaseStatus,
     description: 'Intelligent oppfølging av dine utgifter',
     features: [
       'Gjenkjenning av abonnementer',
@@ -29,7 +31,7 @@ const phases = [
   {
     phase: 3,
     title: 'Gjeldshåndtering',
-    status: 'planned',
+    status: 'planned' as PhaseStatus,
     description: 'Få oversikt og kontroll over gjeld',
     features: [
       'Gjeldsoversikt',
@@ -41,7 +43,7 @@ const phases = [
   {
     phase: 4,
     title: 'Sosiale funksjoner & Premium',
-    status: 'planned',
+    status: 'planned' as PhaseStatus,
     description: 'Del og samarbeid om økonomi',
     features: [
       'Del budsjetter med partner',
@@ -53,7 +55,7 @@ const phases = [
   {
     phase: 5,
     title: 'AI & Prediksjon',
-    status: 'planned',
+    status: 'planned' as PhaseStatus,
     description: 'Intelligent økonomisk rådgivning',
     features: [
       'AI-drevne innsikter',

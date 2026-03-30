@@ -14,7 +14,12 @@ export function EmailSignup() {
     setMessage('')
 
     try {
+      // Debug: Check if env vars are available
+      console.log('Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL)
+      console.log('Supabase Key exists:', !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
+
       const supabase = createClient()
+      console.log('Supabase client created successfully')
 
       // Insert email into waitlist table
       const { error } = await supabase

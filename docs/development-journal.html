@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Financial Clarity Engine - Development Journal</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.6;
+      color: #1a1a1a;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #f8f9fa;
+    }
+
+    header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      border-radius: 10px;
+      margin-bottom: 30px;
+    }
+
+    header h1 {
+      margin: 0 0 10px 0;
+      font-size: 2em;
+    }
+
+    header p {
+      margin: 0;
+      opacity: 0.9;
+    }
+
+    .search-box {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      border: 2px solid #ddd;
+      border-radius: 5px;
+      outline: none;
+    }
+
+    .search-box input:focus {
+      border-color: #667eea;
+    }
+
+    .toc {
+      background: white;
+      padding: 25px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .toc h2 {
+      margin-top: 0;
+      color: #667eea;
+      border-bottom: 2px solid #667eea;
+      padding-bottom: 10px;
+    }
+
+    .toc ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .toc li {
+      margin: 8px 0;
+    }
+
+    .toc a {
+      color: #667eea;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .toc a:hover {
+      color: #764ba2;
+      text-decoration: underline;
+    }
+
+    section {
+      background: white;
+      padding: 30px;
+      margin-bottom: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    section h2 {
+      color: #667eea;
+      border-bottom: 3px solid #667eea;
+      padding-bottom: 10px;
+      margin-top: 0;
+    }
+
+    section h3 {
+      color: #764ba2;
+      margin-top: 25px;
+    }
+
+    .step {
+      background: #f8f9fa;
+      padding: 15px;
+      margin: 15px 0;
+      border-left: 4px solid #667eea;
+      border-radius: 5px;
+    }
+
+    .step-number {
+      display: inline-block;
+      background: #667eea;
+      color: white;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      text-align: center;
+      line-height: 30px;
+      font-weight: bold;
+      margin-right: 10px;
+    }
+
+    code {
+      background: #f4f4f4;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9em;
+      color: #d63384;
+    }
+
+    pre {
+      background: #2d2d2d;
+      color: #f8f8f2;
+      padding: 15px;
+      border-radius: 5px;
+      overflow-x: auto;
+    }
+
+    pre code {
+      background: none;
+      color: #f8f8f2;
+      padding: 0;
+    }
+
+    .success {
+      background: #d4edda;
+      color: #155724;
+      padding: 12px;
+      border-left: 4px solid #28a745;
+      border-radius: 5px;
+      margin: 15px 0;
+    }
+
+    .warning {
+      background: #fff3cd;
+      color: #856404;
+      padding: 12px;
+      border-left: 4px solid #ffc107;
+      border-radius: 5px;
+      margin: 15px 0;
+    }
+
+    .error {
+      background: #f8d7da;
+      color: #721c24;
+      padding: 12px;
+      border-left: 4px solid #dc3545;
+      border-radius: 5px;
+      margin: 15px 0;
+    }
+
+    .lesson {
+      background: #e7f3ff;
+      padding: 15px;
+      border-left: 4px solid #0066cc;
+      border-radius: 5px;
+      margin: 15px 0;
+    }
+
+    .lesson strong {
+      color: #0066cc;
+    }
+
+    ul, ol {
+      padding-left: 25px;
+    }
+
+    li {
+      margin: 8px 0;
+    }
+
+    a {
+      color: #667eea;
+      word-break: break-all;
+    }
+
+    @media print {
+      body {
+        background: white;
+        max-width: 100%;
+      }
+
+      .search-box {
+        display: none;
+      }
+
+      section {
+        box-shadow: none;
+        page-break-inside: avoid;
+      }
+    }
+
+    .no-results {
+      text-align: center;
+      padding: 40px;
+      color: #666;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>📘 Financial Clarity Engine</h1>
+    <p>Complete Development Journal - From Concept to Launch</p>
+    <p style="font-size: 0.9em; margin-top: 10px;">Date: March 29-30, 2026</p>
+  </header>
+
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="🔍 Search documentation... (try 'supabase', 'error', 'deployment')">
+  </div>
+
+  <div class="toc">
+    <h2>📋 Table of Contents</h2>
+    <ul>
+      <li><a href="#overview">1. Project Overview</a></li>
+      <li><a href="#initial-setup">2. Initial Planning & Setup</a></li>
+      <li><a href="#t01-setup">3. T-01: Project Setup & Supabase Init</a></li>
+      <li><a href="#landing-page">4. Norwegian Landing Page & Roadmap</a></li>
+      <li><a href="#troubleshooting">5. Email Signup Troubleshooting</a></li>
+      <li><a href="#lessons-learned">6. Key Lessons Learned</a></li>
+      <li><a href="#tech-stack">7. Complete Tech Stack</a></li>
+      <li><a href="#deployment">8. Deployment Checklist</a></li>
+      <li><a href="#next-steps">9. Next Steps</a></li>
+    </ul>
+  </div>
+
+  <section id="overview">
+    <h2>1. Project Overview</h2>
+
+    <h3>Vision</h3>
+    <p>Financial Clarity Engine is a personal finance app targeting Norwegian users. The goal is to help people understand where their money goes through automatic categorization of bank transactions.</p>
+
+    <h3>Starting Documents</h3>
+    <ul>
+      <li><code>mvp_tracker.html</code> - Detailed MVP ticket tracker with 14 tickets across 5 milestones</li>
+      <li><code>project_reference.html</code> - Full project reference documentation</li>
+      <li><code>phase_*.txt</code> - 5 phase planning documents</li>
+    </ul>
+
+    <div class="success">
+      <strong>✓ Achievement:</strong> Clear, structured planning before any code was written
+    </div>
+  </section>
+
+  <section id="initial-setup">
+    <h2>2. Initial Planning & Setup</h2>
+
+    <h3>Project Structure</h3>
+    <div class="step">
+      <span class="step-number">1</span>
+      <strong>Organized Documentation</strong>
+      <pre><code>project_root/
+├── docs/
+│   ├── mvp_tracker.html
+│   ├── project_reference.html
+│   └── phase_*.txt
+└── (code will go here)</code></pre>
+    </div>
+
+    <h3>MVP Breakdown</h3>
+    <p><strong>Phase 1 (MVP)</strong> consists of 14 tickets:</p>
+    <ul>
+      <li><strong>M1 - Auth (3 tickets):</strong> Google OAuth, Magic Link</li>
+      <li><strong>M2 - Upload (3 tickets):</strong> CSV/PDF parsing, deduplication</li>
+      <li><strong>M3 - Categorization (3 tickets):</strong> Rule-based categories, Norwegian merchants</li>
+      <li><strong>M4 - Insights (3 tickets):</strong> Transaction list, spending dashboard</li>
+      <li><strong>M5 - Ship (2 tickets):</strong> Row-level security, deployment</li>
+    </ul>
+
+    <div class="lesson">
+      <strong>💡 Lesson:</strong> Having a detailed breakdown before coding prevents scope creep and keeps focus on MVP features.
+    </div>
+  </section>
+
+  <section id="t01-setup">
+    <h2>3. T-01: Project Setup & Supabase Init</h2>
+
+    <h3>Acceptance Criteria</h3>
+    <ol>
+      <li>✅ <code>npx create-next-app</code> with TypeScript and App Router</li>
+      <li>✅ Repo pushed to GitHub</li>
+      <li>✅ Supabase project created and env configured</li>
+      <li>✅ <code>@supabase/ssr</code> installed and tested</li>
+      <li>✅ Vercel project linked. Build succeeds from main</li>
+    </ol>
+
+    <h3>Step-by-Step Implementation</h3>
+
+    <div class="step">
+      <span class="step-number">1</span>
+      <strong>Create Next.js Application</strong>
+      <pre><code>npx create-next-app@latest . --typescript --tailwind --app --no-src-dir --import-alias "@/*" --eslint</code></pre>
+      <p>Configuration choices:</p>
+      <ul>
+        <li>TypeScript: Yes</li>
+        <li>Tailwind CSS: Yes</li>
+        <li>App Router: Yes</li>
+        <li>React Compiler: No</li>
+        <li>AGENTS.md: Yes</li>
+      </ul>
+    </div>
+
+    <div class="step">
+      <span class="step-number">2</span>
+      <strong>Initialize Git Repository</strong>
+      <pre><code>git init
+git add .
+git commit -m "Initial commit from Create Next App"</code></pre>
+      <p>Note: <code>create-next-app</code> automatically initializes git</p>
+    </div>
+
+    <div class="step">
+      <span class="step-number">3</span>
+      <strong>Install Supabase Packages</strong>
+      <pre><code>npm install @supabase/supabase-js @supabase/ssr</code></pre>
+    </div>
+
+    <div class="step">
+      <span class="step-number">4</span>
+      <strong>Create Supabase Utilities</strong>
+      <p>Created three key files:</p>
+
+      <p><strong>lib/supabase/server.ts</strong> - For Server Components</p>
+      <pre><code>import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
+
+export async function createClient() {
+  const cookieStore = await cookies()
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() { return cookieStore.getAll() },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) =>
+            cookieStore.set(name, value, options)
+          )
+        }
+      }
+    }
+  )
+}</code></pre>
+
+      <p><strong>lib/supabase/client.ts</strong> - For Client Components</p>
+      <pre><code>import { createBrowserClient } from '@supabase/ssr'
+
+export function createClient() {
+  return createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
+}</code></pre>
+
+      <p><strong>lib/supabase/middleware.ts</strong> - Session management</p>
+    </div>
+
+    <div class="step">
+      <span class="step-number">5</span>
+      <strong>Configure Middleware</strong>
+      <p>Created <code>middleware.ts</code> in project root for auth protection</p>
+      <pre><code>import { updateSession } from '@/lib/supabase/middleware'
+
+export async function middleware(request: NextRequest) {
+  return await updateSession(request)
+}
+
+export const config = {
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)']
+}</code></pre>
+    </div>
+
+    <div class="step">
+      <span class="step-number">6</span>
+      <strong>Set Up Environment Variables</strong>
+      <p>Created <code>.env.local</code> and <code>.env.local.example</code>:</p>
+      <pre><code>NEXT_PUBLIC_SUPABASE_URL=your-project-url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key</code></pre>
+    </div>
+
+    <div class="step">
+      <span class="step-number">7</span>
+      <strong>Create Supabase Project</strong>
+      <ol>
+        <li>Go to https://supabase.com/dashboard</li>
+        <li>Click "New Project"</li>
+        <li>Choose organization</li>
+        <li>Name: financial-clarity-engine</li>
+        <li>Database password: (secure password)</li>
+        <li>Region: Europe (closest to Norway)</li>
+        <li>Wait for provisioning (~2 minutes)</li>
+        <li>Go to Project Settings → API</li>
+        <li>Copy Project URL and anon/public key</li>
+        <li>Add to <code>.env.local</code></li>
+      </ol>
+    </div>
+
+    <div class="step">
+      <span class="step-number">8</span>
+      <strong>Test Supabase Connection</strong>
+      <p>Created <code>app/test-connection/page.tsx</code>:</p>
+      <pre><code>import { createClient } from '@/lib/supabase/server'
+
+export default async function TestConnectionPage() {
+  const supabase = await createClient()
+  const { data, error } = await supabase.auth.getSession()
+
+  return (
+    &lt;div&gt;
+      {error ? 'Connection Error' : '✓ Connection Successful'}
+    &lt;/div&gt;
+  )
+}</code></pre>
+      <p>Updated middleware to allow <code>/test-connection</code> without auth</p>
+    </div>
+
+    <div class="step">
+      <span class="step-number">9</span>
+      <strong>Push to GitHub</strong>
+      <pre><code>git remote add origin https://github.com/SpreadsheetIsKey/pepo.git
+git push -u origin main</code></pre>
+    </div>
+
+    <div class="step">
+      <span class="step-number">10</span>
+      <strong>Deploy to Vercel</strong>
+      <pre><code># Login to Vercel
+vercel login
+
+# Deploy
+vercel --yes</code></pre>
+
+      <p>Add environment variables to Vercel:</p>
+      <pre><code>vercel env add NEXT_PUBLIC_SUPABASE_URL production
+vercel env add NEXT_PUBLIC_SUPABASE_ANON_KEY production</code></pre>
+
+      <p>Redeploy with environment variables:</p>
+      <pre><code>vercel --prod --yes</code></pre>
+    </div>
+
+    <div class="step">
+      <span class="step-number">11</span>
+      <strong>Verify Production</strong>
+      <ul>
+        <li>✅ Landing page: https://ucuncupersonalfinanceapp.vercel.app</li>
+        <li>✅ Test connection: https://ucuncupersonalfinanceapp.vercel.app/test-connection</li>
+        <li>✅ Build succeeds</li>
+        <li>✅ Supabase connection works</li>
+      </ul>
+    </div>
+
+    <div class="success">
+      <strong>✓ T-01 Complete!</strong> Project setup with Next.js, Supabase, and Vercel deployment working.
+    </div>
+
+    <div class="lesson">
+      <strong>💡 Key Lessons:</strong>
+      <ul>
+        <li>Always test locally before deploying to production</li>
+        <li>Use <code>.env.local.example</code> for documentation</li>
+        <li>Test page helps verify configuration quickly</li>
+        <li>Build cache in Vercel speeds up subsequent deployments</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="landing-page">
+    <h2>4. Norwegian Landing Page & Roadmap</h2>
+
+    <h3>Strategic Decision</h3>
+    <div class="warning">
+      <strong>⚠️ Decision Point:</strong> Should we make the MVP tracker public?
+      <br><br>
+      <strong>Conclusion:</strong> No. Keep MVP tracker private (internal use). Create simplified public roadmap instead.
+      <br><br>
+      <strong>Reasoning:</strong>
+      <ul>
+        <li>MVP tracker has too much technical detail</li>
+        <li>Exposes entire roadmap to competitors</li>
+        <li>Shows implementation details</li>
+        <li>Could create unrealistic expectations</li>
+      </ul>
+    </div>
+
+    <h3>What We Built Instead</h3>
+    <ul>
+      <li><strong>Landing Page</strong> - Norwegian language, email signup</li>
+      <li><strong>Public Roadmap</strong> - Simplified 5-phase overview</li>
+      <li><strong>Email Collection</strong> - Supabase-backed waitlist</li>
+    </ul>
+
+    <h3>Implementation Steps</h3>
+
+    <div class="step">
+      <span class="step-number">1</span>
+      <strong>Create Landing Page (Norwegian)</strong>
+      <p>File: <code>app/page.tsx</code></p>
+      <p>Sections:</p>
+      <ul>
+        <li>Hero: "Ta kontroll over din økonomiske fremtid"</li>
+        <li>Email signup form</li>
+        <li>3 feature cards (Upload, Categorization, Insights)</li>
+        <li>Status section: "Vi bygger akkurat nå"</li>
+        <li>Link to roadmap</li>
+        <li>Footer</li>
+      </ul>
+    </div>
+
+    <div class="step">
+      <span class="step-number">2</span>
+      <strong>Create Email Signup Component</strong>
+      <p>File: <code>components/email-signup.tsx</code></p>
+      <pre><code>'use client'
+
+export function EmailSignup() {
+  const [email, setEmail] = useState('')
+  const [status, setStatus] = useState('idle')
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    const supabase = createClient()
+    const { error } = await supabase
+      .from('waitlist')
+      .insert([{ email }])
+
+    if (error) {
+      // Handle error
+    } else {
+      setStatus('success')
+      setMessage('Takk! Du er nå på ventelisten.')
+    }
+  }
+
+  return &lt;form onSubmit={handleSubmit}&gt;...&lt;/form&gt;
+}</code></pre>
+    </div>
+
+    <div class="step">
+      <span class="step-number">3</span>
+      <strong>Create Public Roadmap</strong>
+      <p>File: <code>app/roadmap/page.tsx</code></p>
+      <p>Shows 5 phases:</p>
+      <ul>
+        <li>Fase 1: Grunnleggende funksjoner (MVP) - Under utvikling 🚧</li>
+        <li>Fase 2: Smart sporing - Planlagt 📋</li>
+        <li>Fase 3: Gjeldshåndtering - Planlagt 📋</li>
+        <li>Fase 4: Sosiale funksjoner & Premium - Planlagt 📋</li>
+        <li>Fase 5: AI & Prediksjon - Planlagt 📋</li>
+      </ul>
+    </div>
+
+    <div class="step">
+      <span class="step-number">4</span>
+      <strong>Create Waitlist Table in Supabase</strong>
+      <p>File: <code>supabase/migrations/20260329_create_waitlist.sql</code></p>
+      <pre><code>-- Create waitlist table
+CREATE TABLE IF NOT EXISTS waitlist (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  email TEXT NOT NULL UNIQUE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Add indexes
+CREATE INDEX idx_waitlist_email ON waitlist(email);
+CREATE INDEX idx_waitlist_created_at ON waitlist(created_at DESC);
+
+-- Enable RLS
+ALTER TABLE waitlist ENABLE ROW LEVEL SECURITY;
+
+-- Allow anyone to insert
+CREATE POLICY "Anyone can sign up for waitlist" ON waitlist
+  FOR INSERT
+  WITH CHECK (true);
+
+-- Only authenticated users can view
+CREATE POLICY "Authenticated users can view waitlist" ON waitlist
+  FOR SELECT
+  USING (auth.role() = 'authenticated');</code></pre>
+
+      <p>Ran in Supabase SQL Editor</p>
+    </div>
+
+    <div class="step">
+      <span class="step-number">5</span>
+      <strong>Update Middleware for Public Routes</strong>
+      <pre><code>const publicRoutes = ['/', '/roadmap', '/test-connection']
+const isPublicRoute = publicRoutes.some(route =>
+  request.nextUrl.pathname === route ||
+  request.nextUrl.pathname.startsWith('/login') ||
+  request.nextUrl.pathname.startsWith('/auth') ||
+  request.nextUrl.pathname.startsWith('/api/')
+)</code></pre>
+    </div>
+
+    <div class="success">
+      <strong>✓ Landing Page Live!</strong>
+      <ul>
+        <li>Norwegian landing page at /</li>
+        <li>Public roadmap at /roadmap</li>
+        <li>Email collection working</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="troubleshooting">
+    <h2>5. Email Signup Troubleshooting</h2>
+
+    <h3>The Problem</h3>
+    <div class="error">
+      <strong>❌ Error:</strong> "Failed to fetch" when submitting email signup form
+    </div>
+
+    <h3>Debugging Process</h3>
+
+    <div class="step">
+      <span class="step-number">1</span>
+      <strong>Initial Error Investigation</strong>
+      <p>Browser console showed:</p>
+      <pre><code>Error: TypeError: Failed to execute 'set' on 'Headers': Invalid value</code></pre>
+      <p>This indicated an issue with HTTP headers in the Supabase client</p>
+    </div>
+
+    <div class="step">
+      <span class="step-number">2</span>
+      <strong>Added Environment Variable Validation</strong>
+      <p>Modified <code>lib/supabase/client.ts</code>:</p>
+      <pre><code>export function createClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error(
+      'Missing Supabase environment variables. ' +
+      `URL: ${supabaseUrl ? 'set' : 'missing'}, ` +
+      `Key: ${supabaseAnonKey ? 'set' : 'missing'}`
+    )
+  }
+
+  return createBrowserClient(supabaseUrl, supabaseAnonKey)
+}</code></pre>
+    </div>
+
+    <div class="step">
+      <span class="step-number">3</span>
+      <strong>Created Debug Endpoint</strong>
+      <p>File: <code>app/debug-env/page.tsx</code></p>
+      <p>This page displays all environment variables in the browser to verify they're being set correctly</p>
+    </div>
+
+    <div class="step">
+      <span class="step-number">4</span>
+      <strong>Created API Test Endpoint</strong>
+      <p>File: <code>app/api/test-waitlist/route.ts</code></p>
+      <p>Server-side test that:</p>
+      <ul>
+        <li>Connects to Supabase</li>
+        <li>Tests SELECT query</li>
+        <li>Tests INSERT operation</li>
+        <li>Tests DELETE operation</li>
+        <li>Returns detailed error messages</li>
+      </ul>
+    </div>
+
+    <div class="step">
+      <span class="step-number">5</span>
+      <strong>Root Cause Found!</strong>
+      <div class="error">
+        <strong>The Problem:</strong> Environment variables had trailing newline characters!
+        <br><br>
+        <code>https://weivmnsonkkocnsovnjw.supabase.co\n</code>
+        <br>
+        <code>eyJhbGc...FxFpfqw\n</code>
+        <br><br>
+        These newlines were causing the HTTP Header validation to fail.
+      </div>
+    </div>
+
+    <div class="step">
+      <span class="step-number">6</span>
+      <strong>Why Did This Happen?</strong>
+      <p>When using Vercel CLI with <code>printf</code>:</p>
+      <pre><code>printf "value\nn\n" | vercel env add KEY production</code></pre>
+      <p>The <code>\n</code> characters were being included in the stored value!</p>
+    </div>
+
+    <div class="step">
+      <span class="step-number">7</span>
+      <strong>The Solution</strong>
+      <p><strong>Method 1:</strong> Use Vercel Dashboard (RECOMMENDED)</p>
+      <ol>
+        <li>Go to Vercel Project → Settings → Environment Variables</li>
+        <li>Delete the corrupted variables</li>
+        <li>Add them manually through the web interface</li>
+        <li>Paste values carefully - no extra spaces or newlines</li>
+        <li>Redeploy</li>
+      </ol>
+
+      <p><strong>Method 2:</strong> Use <code>printf</code> without newline</p>
+      <pre><code>printf "value" | vercel env add KEY production</code></pre>
+      <p>But dashboard is more reliable!</p>
+    </div>
+
+    <div class="step">
+      <span class="step-number">8</span>
+      <strong>Verification</strong>
+      <p>After fixing:</p>
+      <pre><code>$ curl https://ucuncupersonalfinanceapp.vercel.app/api/test-waitlist
+
+{
+  "success": true,
+  "message": "Waitlist table is working correctly!"
+}</code></pre>
+      <p>Email signup form now works perfectly! ✓</p>
+    </div>
+
+    <div class="lesson">
+      <strong>💡 Critical Lessons:</strong>
+      <ul>
+        <li><strong>Always use Vercel Dashboard for environment variables</strong> - CLI can introduce hidden characters</li>
+        <li><strong>Create debug endpoints early</strong> - They save hours of troubleshooting</li>
+        <li><strong>Test server-side and client-side separately</strong> - Helps isolate issues</li>
+        <li><strong>Log everything during debugging</strong> - Console logs revealed the newline issue</li>
+        <li><strong>Environment variable issues are silent killers</strong> - Build succeeds but runtime fails</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="lessons-learned">
+    <h2>6. Key Lessons Learned</h2>
+
+    <h3>Development Workflow</h3>
+    <div class="lesson">
+      <strong>1. Plan Before Code</strong>
+      <ul>
+        <li>MVP tracker kept us focused</li>
+        <li>Clear acceptance criteria prevented scope creep</li>
+        <li>Breaking into 14 tickets made progress trackable</li>
+      </ul>
+    </div>
+
+    <div class="lesson">
+      <strong>2. Test Locally First</strong>
+      <ul>
+        <li>Always run <code>npm run build</code> before deploying</li>
+        <li>Create test pages for new features</li>
+        <li>Verify Supabase connections in development</li>
+      </ul>
+    </div>
+
+    <div class="lesson">
+      <strong>3. Environment Variables</strong>
+      <ul>
+        <li>Use Vercel Dashboard, not CLI</li>
+        <li>Create <code>.env.local.example</code> for documentation</li>
+        <li>Verify variables are loading with debug pages</li>
+        <li>Check for hidden characters (newlines, spaces)</li>
+      </ul>
+    </div>
+
+    <div class="lesson">
+      <strong>4. Debugging Strategy</strong>
+      <ul>
+        <li>Add extensive console logging</li>
+        <li>Create debug endpoints</li>
+        <li>Test API routes separately from UI</li>
+        <li>Check browser Network tab for failed requests</li>
+      </ul>
+    </div>
+
+    <h3>Technical Decisions</h3>
+    <div class="lesson">
+      <strong>5. Supabase SSR Pattern</strong>
+      <ul>
+        <li>Separate client/server utilities prevent build errors</li>
+        <li>Middleware handles session refresh automatically</li>
+        <li>Row Level Security protects data at database level</li>
+      </ul>
+    </div>
+
+    <div class="lesson">
+      <strong>6. Norwegian Market Focus</strong>
+      <ul>
+        <li>All landing page content in Norwegian</li>
+        <li>Targets specific banks (DNB, Nordea, Sparebank 1)</li>
+        <li>No need for multi-language support in MVP</li>
+      </ul>
+    </div>
+
+    <div class="lesson">
+      <strong>7. Public vs Private Information</strong>
+      <ul>
+        <li>Keep technical MVP tracker private</li>
+        <li>Public roadmap shows features, not implementation</li>
+        <li>Collect emails early for launch notification</li>
+      </ul>
+    </div>
+
+    <h3>Git & Deployment</h3>
+    <div class="lesson">
+      <strong>8. Commit Often with Clear Messages</strong>
+      <ul>
+        <li>Each logical change = one commit</li>
+        <li>Reference ticket numbers (T-01, T-02)</li>
+        <li>Describe "what" and "why" in commit messages</li>
+      </ul>
+    </div>
+
+    <div class="lesson">
+      <strong>9. Vercel Deployment</strong>
+      <ul>
+        <li>Auto-deploys on git push (after setup)</li>
+        <li>Environment variables need manual configuration</li>
+        <li>Build cache speeds up subsequent deploys</li>
+        <li>Preview deployments help test before production</li>
+      </ul>
+    </div>
+
+    <h3>Common Pitfalls Avoided</h3>
+    <ul>
+      <li>❌ Building without planning → ✅ Created MVP tracker first</li>
+      <li>❌ Overengineering → ✅ Kept to MVP scope</li>
+      <li>❌ No monitoring → ✅ Added Supabase dashboard access</li>
+      <li>❌ Complex auth in MVP → ✅ Postponed to T-02</li>
+      <li>❌ Manual deployment → ✅ Automated with Vercel</li>
+    </ul>
+  </section>
+
+  <section id="tech-stack">
+    <h2>7. Complete Tech Stack</h2>
+
+    <h3>Frontend</h3>
+    <ul>
+      <li><strong>Framework:</strong> Next.js 16.2.1 (App Router)</li>
+      <li><strong>Language:</strong> TypeScript</li>
+      <li><strong>Styling:</strong> Tailwind CSS</li>
+      <li><strong>Fonts:</strong> Geist (from Vercel)</li>
+    </ul>
+
+    <h3>Backend & Database</h3>
+    <ul>
+      <li><strong>Database:</strong> Supabase (PostgreSQL)</li>
+      <li><strong>Auth:</strong> Supabase Auth (not yet implemented)</li>
+      <li><strong>API:</strong> Next.js API Routes</li>
+      <li><strong>ORM:</strong> Supabase Client (@supabase/supabase-js)</li>
+    </ul>
+
+    <h3>Infrastructure</h3>
+    <ul>
+      <li><strong>Hosting:</strong> Vercel</li>
+      <li><strong>Domain:</strong> ucuncupersonalfinanceapp.vercel.app</li>
+      <li><strong>Git:</strong> GitHub (SpreadsheetIsKey/pepo)</li>
+      <li><strong>CI/CD:</strong> Automatic via Vercel + GitHub</li>
+    </ul>
+
+    <h3>Development Tools</h3>
+    <ul>
+      <li><strong>Package Manager:</strong> npm</li>
+      <li><strong>Linting:</strong> ESLint</li>
+      <li><strong>TypeScript:</strong> Strict mode enabled</li>
+      <li><strong>Build Tool:</strong> Turbopack (Next.js 16)</li>
+    </ul>
+
+    <h3>Key Dependencies</h3>
+    <pre><code>{
+  "dependencies": {
+    "next": "16.2.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "@supabase/supabase-js": "^2.x",
+    "@supabase/ssr": "^0.x"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "typescript": "^5",
+    "tailwindcss": "^3",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.1"
+  }
+}</code></pre>
+
+    <h3>Project Structure</h3>
+    <pre><code>project_root/
+├── app/                      # Next.js App Router
+│   ├── page.tsx             # Landing page (Norwegian)
+│   ├── roadmap/             # Public roadmap
+│   ├── test-connection/     # Supabase connection test
+│   ├── debug-env/           # Environment debug page
+│   └── api/                 # API routes
+│       └── test-waitlist/   # Waitlist test endpoint
+├── components/              # React components
+│   └── email-signup.tsx     # Email signup form
+├── lib/                     # Utilities
+│   └── supabase/           # Supabase clients
+│       ├── client.ts       # Browser client
+│       ├── server.ts       # Server client
+│       └── middleware.ts   # Auth middleware
+├── docs/                    # Documentation
+│   ├── mvp_tracker.html    # Internal MVP tracker
+│   ├── project_reference.html
+│   └── phase_*.txt
+├── supabase/               # Supabase config
+│   ├── migrations/         # SQL migrations
+│   └── README.md
+├── public/                 # Static assets
+├── middleware.ts           # Next.js middleware
+├── .env.local             # Environment variables (gitignored)
+├── .env.local.example     # Environment template
+└── package.json           # Dependencies</code></pre>
+  </section>
+
+  <section id="deployment">
+    <h2>8. Deployment Checklist</h2>
+
+    <h3>Pre-Deployment</h3>
+    <div class="step">
+      <input type="checkbox"> Code committed to git
+    </div>
+    <div class="step">
+      <input type="checkbox"> <code>npm run build</code> succeeds locally
+    </div>
+    <div class="step">
+      <input type="checkbox"> TypeScript errors resolved
+    </div>
+    <div class="step">
+      <input type="checkbox"> Environment variables documented in <code>.env.local.example</code>
+    </div>
+    <div class="step">
+      <input type="checkbox"> Test pages created for new features
+    </div>
+
+    <h3>Supabase Setup</h3>
+    <div class="step">
+      <input type="checkbox"> Supabase project created
+    </div>
+    <div class="step">
+      <input type="checkbox"> Database migrations run
+    </div>
+    <div class="step">
+      <input type="checkbox"> Row Level Security policies configured
+    </div>
+    <div class="step">
+      <input type="checkbox"> Project URL and API keys copied
+    </div>
+
+    <h3>Vercel Deployment</h3>
+    <div class="step">
+      <input type="checkbox"> Vercel account created
+    </div>
+    <div class="step">
+      <input type="checkbox"> Project connected to GitHub repo
+    </div>
+    <div class="step">
+      <input type="checkbox"> Environment variables added via Dashboard (NOT CLI)
+    </div>
+    <div class="step">
+      <input type="checkbox"> First deployment successful
+    </div>
+    <div class="step">
+      <input type="checkbox"> Production URL accessible
+    </div>
+
+    <h3>Post-Deployment Verification</h3>
+    <div class="step">
+      <input type="checkbox"> Landing page loads correctly
+    </div>
+    <div class="step">
+      <input type="checkbox"> Email signup works
+    </div>
+    <div class="step">
+      <input type="checkbox"> Database receives entries
+    </div>
+    <div class="step">
+      <input type="checkbox"> All links work
+    </div>
+    <div class="step">
+      <input type="checkbox"> Mobile responsive
+    </div>
+    <div class="step">
+      <input type="checkbox"> No console errors in browser
+    </div>
+
+    <h3>Quick Deploy Commands</h3>
+    <pre><code># Standard deployment workflow
+git add -A
+git commit -m "Descriptive message"
+git push origin main
+
+# Vercel auto-deploys on push
+
+# Manual deploy (if needed)
+vercel --prod --yes</code></pre>
+  </section>
+
+  <section id="next-steps">
+    <h2>9. Next Steps</h2>
+
+    <h3>Immediate Actions</h3>
+    <ul>
+      <li>✅ T-01 Complete - Project setup</li>
+      <li>✅ Landing page live</li>
+      <li>✅ Email collection working</li>
+      <li>⏳ T-02: Google OAuth login</li>
+      <li>⏳ T-03: Magic link email login</li>
+    </ul>
+
+    <h3>T-02: Google OAuth Login</h3>
+    <p><strong>Acceptance Criteria:</strong></p>
+    <ol>
+      <li>Google OAuth enabled and redirect configured</li>
+      <li>User can complete sign-in flow</li>
+      <li>Protected dashboard redirects correctly</li>
+      <li>Sign-out clears session</li>
+    </ol>
+
+    <p><strong>Implementation Plan:</strong></p>
+    <ul>
+      <li>Configure Google OAuth in Supabase dashboard</li>
+      <li>Create login page with Google sign-in button</li>
+      <li>Set up callback handler</li>
+      <li>Create protected dashboard route</li>
+      <li>Add sign-out functionality</li>
+      <li>Test complete flow</li>
+    </ul>
+
+    <h3>Future Phases</h3>
+    <ul>
+      <li><strong>Phase 2:</strong> Smart tracking (subscriptions, budgets)</li>
+      <li><strong>Phase 3:</strong> Debt management</li>
+      <li><strong>Phase 4:</strong> Social features & premium</li>
+      <li><strong>Phase 5:</strong> AI & predictions</li>
+    </ul>
+
+    <h3>Marketing & Growth</h3>
+    <ul>
+      <li>Share landing page on Norwegian forums</li>
+      <li>Post to relevant subreddits</li>
+      <li>Norwegian Facebook groups</li>
+      <li>Monitor waitlist growth in Supabase</li>
+      <li>Email waitlist when MVP launches</li>
+    </ul>
+
+    <h3>Resources</h3>
+    <ul>
+      <li><strong>Landing Page:</strong> https://ucuncupersonalfinanceapp.vercel.app</li>
+      <li><strong>Public Roadmap:</strong> https://ucuncupersonalfinanceapp.vercel.app/roadmap</li>
+      <li><strong>GitHub Repo:</strong> https://github.com/SpreadsheetIsKey/pepo</li>
+      <li><strong>Supabase Dashboard:</strong> https://supabase.com/dashboard/project/weivmnsonkkocnsovnjw</li>
+      <li><strong>Vercel Dashboard:</strong> https://vercel.com/timurs-projects-2ef8f344/ucuncu_personal_finance_app</li>
+    </ul>
+  </section>
+
+  <footer style="text-align: center; padding: 40px 20px; color: #666; border-top: 1px solid #ddd; margin-top: 40px;">
+    <p><strong>Financial Clarity Engine</strong> - Development Journal</p>
+    <p>From Planning to Launch: March 29-30, 2026</p>
+    <p style="font-size: 0.9em; margin-top: 20px;">
+      This document captures the complete development journey,<br>
+      including all decisions, challenges, and solutions.
+    </p>
+  </footer>
+
+  <div class="no-results" id="noResults">
+    <h3>No results found</h3>
+    <p>Try searching for: "supabase", "error", "deployment", "environment"</p>
+  </div>
+
+  <script>
+    // Search functionality
+    const searchInput = document.getElementById('searchInput');
+    const sections = document.querySelectorAll('section');
+    const noResults = document.getElementById('noResults');
+
+    searchInput.addEventListener('input', function(e) {
+      const searchTerm = e.target.value.toLowerCase();
+      let hasVisibleSection = false;
+
+      sections.forEach(section => {
+        const text = section.textContent.toLowerCase();
+        if (searchTerm === '' || text.includes(searchTerm)) {
+          section.style.display = 'block';
+          hasVisibleSection = true;
+        } else {
+          section.style.display = 'none';
+        }
+      });
+
+      noResults.style.display = hasVisibleSection ? 'none' : 'block';
+    });
+
+    // Smooth scroll for TOC links
+    document.querySelectorAll('.toc a').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+
+    // Print button
+    const printBtn = document.createElement('button');
+    printBtn.textContent = '🖨️ Print';
+    printBtn.style.cssText = 'position: fixed; bottom: 20px; right: 20px; padding: 12px 24px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.2); font-size: 16px; z-index: 1000;';
+    printBtn.onclick = () => window.print();
+    document.body.appendChild(printBtn);
+  </script>
+</body>
+</html>

@@ -10,12 +10,20 @@ export default function LandingPage() {
           <div className="text-2xl font-bold text-blue-900">
             Financial Clarity
           </div>
-          <Link
-            href="/roadmap"
-            className="text-sm font-medium text-blue-600 hover:text-blue-700"
-          >
-            Veikart
-          </Link>
+          <div className="flex items-center gap-4">
+            <Link
+              href="/roadmap"
+              className="text-sm font-medium text-blue-600 hover:text-blue-700"
+            >
+              Veikart
+            </Link>
+            <Link
+              href="/login"
+              className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Logg inn
+            </Link>
+          </div>
         </div>
       </nav>
 

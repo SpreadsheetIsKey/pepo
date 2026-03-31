@@ -410,6 +410,79 @@ categories:
 
 ---
 
+### T-09: Category Correction UI ✅
+**Date:** March 31, 2026
+**Status:** Complete
+
+**What was done:**
+1. **Transaction List Component:**
+   - Interactive table displaying last 100 transactions
+   - Columns: date, description, bank, amount, category
+   - Sorted by transaction date (newest first)
+   - Norwegian date/currency formatting
+   - Loading states and empty state handling
+   - Responsive design with horizontal scroll
+
+2. **Inline Category Editing:**
+   - Click on category to edit
+   - Dropdown with all available categories
+   - Categories grouped by main category (optgroup)
+   - Auto-focus on dropdown for better UX
+   - Click outside to cancel editing
+
+3. **Confidence Indicators:**
+   - Green dot (●) for high confidence (≥ 0.95)
+   - Yellow dot (●) for medium confidence (≥ 0.85)
+   - Red dot (●) for low confidence (< 0.85)
+   - No indicator for manually corrected categories
+
+4. **Optimistic UI Updates:**
+   - Instant visual feedback when changing category
+   - Database update happens in background
+   - Automatic revert if save fails
+
+5. **Undo Functionality:**
+   - Snackbar notification for 5 seconds after change
+   - Shows old and new category
+   - "Angre" (Undo) button to revert
+   - Auto-dismiss after 5 seconds
+
+**Files created:**
+- `components/transaction-list.tsx` - Main transaction list component
+
+**Files modified:**
+- `app/dashboard/page.tsx` - Added transaction list to dashboard
+
+**Key decisions:**
+- Direct Supabase client usage instead of API route
+  - Rationale: RLS policies handle security, simpler architecture
+  - Performance: Reduces server round-trip
+- Optimistic UI updates for better UX
+  - Rationale: Instant feedback, network delay hidden
+- Manual corrections remove confidence score
+  - Rationale: User override is absolute, not probabilistic
+- Limited to 100 transactions for MVP
+  - Rationale: Performance, pagination can be added later
+- No "learn from corrections" yet
+  - Rationale: Deferred to future enhancement, MVP focuses on manual correction
+
+**Testing:**
+- TypeScript compilation successful
+- Component renders without errors
+- Ready for user testing
+
+**Future enhancements (not MVP):**
+- Pagination for large transaction sets
+- Filters: date range, category, amount, bank
+- Search by description
+- Bulk category updates (select multiple transactions)
+- Keyboard shortcuts (arrow keys, Enter to save)
+- Learn from corrections (auto-create rules)
+- Sort by any column
+- Export filtered transactions
+
+---
+
 ## Upcoming Work
 
 ### T-05: PDF Upload & Parse (Optional - "Should")
@@ -417,18 +490,6 @@ categories:
 - Use PDF parsing library (pdf-parse or similar)
 - Map to same transaction structure
 - Lower priority than other tickets
-
-### T-06: Transaction Deduplication
-- Implement duplicate detection using row_hash
-- Show user which transactions are duplicates before import
-- Allow manual override of deduplication
-- Prevent accidental double-imports
-
-### T-09: Category Correction UI
-- Allow users to review and correct auto-categorized transactions
-- Learn from corrections (update rules or add new ones)
-- Bulk category updates
-- Keyboard shortcuts for efficiency
 
 ### T-10: Transaction List View
 - Paginated transaction table

@@ -34,6 +34,8 @@ export function TransactionList() {
   const [showUndo, setShowUndo] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [selectedMonth, setSelectedMonth] = useState<string>('all')
+  const [searchQuery, setSearchQuery] = useState<string>('')
+  const [typeFilter, setTypeFilter] = useState<string>('all') // all, income, expense, uncategorized
 
   useEffect(() => {
     fetchTransactions()
@@ -200,6 +202,23 @@ export function TransactionList() {
 
   // Filter transactions
   const filteredTransactions = transactions.filter(transaction => {
+    // Search filter
+    if (searchQuery.trim() !== '') {
+      const query = searchQuery.toLowerCase()
+      if (!transaction.description.toLowerCase().includes(query)) {
+        return false
+      }
+    }
+
+    // Type filter (quick filters)
+    if (typeFilter === 'income') {
+      if (transaction.amount <= 0) return false
+    } else if (typeFilter === 'expense') {
+      if (transaction.amount >= 0) return false
+    } else if (typeFilter === 'uncategorized') {
+      if (transaction.category !== null) return false
+    }
+
     // Category filter
     if (selectedCategory !== 'all') {
       if (selectedCategory === 'uncategorized') {
@@ -291,6 +310,76 @@ export function TransactionList() {
                 {uncategorizedCount} ukategorisert
               </span>
             )}
+          </div>
+
+          {/* Search Bar */}
+          <div className="mb-3">
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Søk i transaksjoner..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 pl-10 text-sm"
+              />
+              <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Quick Filters */}
+          <div className="flex flex-wrap gap-2 mb-3">
+            <button
+              onClick={() => setTypeFilter('all')}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                typeFilter === 'all'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              Alle
+            </button>
+            <button
+              onClick={() => setTypeFilter('income')}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                typeFilter === 'income'
+                  ? 'bg-green-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              Inntekt
+            </button>
+            <button
+              onClick={() => setTypeFilter('expense')}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                typeFilter === 'expense'
+                  ? 'bg-red-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              Utgift
+            </button>
+            <button
+              onClick={() => setTypeFilter('uncategorized')}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                typeFilter === 'uncategorized'
+                  ? 'bg-amber-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              Ukategorisert
+            </button>
           </div>
 
           <div className="flex flex-wrap gap-3 items-center">

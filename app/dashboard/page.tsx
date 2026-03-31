@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { SignOutButton } from '@/components/sign-out-button'
+import { CsvUpload } from '@/components/csv-upload'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -34,6 +35,12 @@ export default async function DashboardPage() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* CSV Upload Section */}
+        <div className="mb-8">
+          <CsvUpload />
+        </div>
+
+        {/* User Info Section */}
         <div className="bg-white rounded-lg shadow p-6">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">
             Brukerinformasjon
@@ -66,16 +73,6 @@ export default async function DashboardPage() {
               </p>
             </div>
           </div>
-        </div>
-
-        {/* Coming Soon Section */}
-        <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-blue-900 mb-2">
-            Flere funksjoner kommer snart!
-          </h3>
-          <p className="text-blue-700">
-            Dashboard-funksjonalitet for opplasting av filer, transaksjonsvisning og kategorisering vil bli tilgjengelig i de neste fasene.
-          </p>
         </div>
       </main>
     </div>

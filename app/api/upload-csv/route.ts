@@ -18,13 +18,40 @@ interface ColumnMapping {
   amountCombined: number | null
 }
 
-// Parse Norwegian number format to JavaScript number
+// Parse amount in multiple formats (Norwegian, English, etc.)
 function parseNorwegianAmount(amountStr: string): number {
   if (!amountStr) return 0
-  // Remove all spaces (thousands separator): "10 000,00" → "10000,00"
-  // Replace comma with dot (decimal separator): "10000,00" → "10000.00"
-  const normalized = amountStr.trim().replace(/\s/g, '').replace(',', '.')
-  return parseFloat(normalized) || 0
+
+  const cleaned = amountStr.trim().replace(/\s/g, '')
+
+  // Detect format based on presence of comma and dot
+  const hasComma = cleaned.includes(',')
+  const hasDot = cleaned.includes('.')
+
+  if (hasComma && hasDot) {
+    // Both present: determine which is decimal separator
+    const lastComma = cleaned.lastIndexOf(',')
+    const lastDot = cleaned.lastIndexOf('.')
+
+    if (lastDot > lastComma) {
+      // English format: "10,000.50" → dot is decimal
+      // Remove commas (thousands), keep dot
+      const normalized = cleaned.replace(/,/g, '')
+      return parseFloat(normalized) || 0
+    } else {
+      // European format: "10.000,50" → comma is decimal
+      // Remove dots (thousands), replace comma with dot
+      const normalized = cleaned.replace(/\./g, '').replace(',', '.')
+      return parseFloat(normalized) || 0
+    }
+  } else if (hasComma) {
+    // Only comma: Norwegian format "10000,00"
+    const normalized = cleaned.replace(',', '.')
+    return parseFloat(normalized) || 0
+  } else {
+    // Only dot or no separator: "10000.00" or "10000"
+    return parseFloat(cleaned) || 0
+  }
 }
 
 // Parse date to YYYY-MM-DD format

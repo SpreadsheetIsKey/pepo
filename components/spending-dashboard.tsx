@@ -64,16 +64,21 @@ export function SpendingDashboard() {
         return monthKey === selectedMonth
       })
 
-  // Calculate spending by category (only expenses, negative amounts)
+  // Calculate spending by main category only (only expenses, negative amounts)
   const categorySpending = filteredTransactions
     .filter(t => t.amount < 0 && t.category !== null)
     .reduce((acc, t) => {
-      const cat = t.category as string
-      if (!acc[cat]) {
-        acc[cat] = { total: 0, count: 0 }
+      const fullCategory = t.category as string
+      // Extract main category (before the colon)
+      const mainCategory = fullCategory.includes(':')
+        ? fullCategory.split(':')[0].trim()
+        : fullCategory
+
+      if (!acc[mainCategory]) {
+        acc[mainCategory] = { total: 0, count: 0 }
       }
-      acc[cat].total += Math.abs(t.amount)
-      acc[cat].count += 1
+      acc[mainCategory].total += Math.abs(t.amount)
+      acc[mainCategory].count += 1
       return acc
     }, {} as Record<string, { total: number; count: number }>)
 

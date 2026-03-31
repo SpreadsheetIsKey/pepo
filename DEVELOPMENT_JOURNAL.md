@@ -247,6 +247,104 @@ Target users: Norwegian bank customers (DNB, Nordea, Sparebank 1).
 
 ---
 
+### T-07: Category Data Model & Seed ✅
+**Date:** March 31, 2026
+**Status:** Complete
+
+**What was done:**
+1. **Categories Table Schema:**
+   - Created comprehensive category taxonomy structure
+   - Main category + sub-category hierarchy
+   - Support for system-provided (free) and user-custom (premium) categories
+   - Loan tracking metadata (is_loan, loan_type fields)
+   - RLS policies for category access control
+
+2. **Category Taxonomy (Seeded):**
+   - **14 main categories:** Income, Housing, Transportation, Food and Dining, Health and Wellness, Personal Care, Insurance, Subscriptions and Entertainment, Education, Clothing, Family/Child, Miscellaneous, Debt (3 pressure levels), Investing
+   - **100+ sub-categories** covering comprehensive spending areas
+   - **Loan classification:** Hi-Pressure, Lo-Pressure, No-Pressure debt types
+   - **Income identification:** is_income flag for income categories
+
+3. **Premium Features Planning:**
+   - Documented free vs premium feature split
+   - Created PREMIUM_FEATURES.md with full roadmap
+   - Planned custom category management (rename, create, delete)
+   - Planned loan tracking system (automatic balance reduction from payments)
+
+4. **Category Structure:**
+   ```
+   - Income (6 sub-categories)
+   - Housing (5 sub-categories)
+   - Transportation (7 sub-categories)
+   - Food and Dining (5 sub-categories)
+   - Health and Wellness (6 sub-categories)
+   - Personal Care (3 sub-categories)
+   - Insurance (4 sub-categories)
+   - Subscriptions and Entertainment (18 sub-categories)
+   - Education (4 sub-categories)
+   - Clothing (4 sub-categories)
+   - Family/Child (7 sub-categories)
+   - Miscellaneous (5 sub-categories)
+   - Hi-Pressure Debt (3 loan categories)
+   - Lo-Pressure Debt (4 loan categories)
+   - No-Pressure Debt (16 loan categories)
+   - Investing (1 sub-category)
+   ```
+
+**Files created:**
+- `supabase/migrations/20260331_create_categories.sql` - Categories table with full seed data
+- `PREMIUM_FEATURES.md` - Comprehensive premium features roadmap
+
+**Database Schema:**
+```sql
+categories:
+  - id (UUID primary key)
+  - user_id (NULL for system, UUID for custom)
+  - main_category (TEXT)
+  - sub_category (TEXT)
+  - is_system (BOOLEAN - free vs premium)
+  - is_income (BOOLEAN - income vs expense)
+  - is_loan (BOOLEAN - enables loan tracking)
+  - loan_type (TEXT - hi/lo/no pressure)
+  - display_order (INTEGER - UI sorting)
+```
+
+**Key decisions:**
+- System categories (user_id = NULL, is_system = true) are read-only and free
+- User custom categories (user_id = current_user, is_system = false) are premium
+- Loose coupling with transactions table (TEXT field, not FK)
+  - Rationale: More flexible for MVP, allows category renaming without breaking history
+  - Future: Can add FK if needed for referential integrity
+- Loan categories have metadata for future premium loan tracking feature
+- Main categories are fixed; only sub-categories are customizable (premium)
+
+**Premium Features Planned:**
+1. **Custom Categories (Premium):**
+   - Rename generic sub-categories (e.g., "Income 2" → "Freelance Work")
+   - Create new sub-categories under existing main categories
+   - Delete unused sub-categories
+   - Reorder categories
+
+2. **Loan Tracking (Premium):**
+   - Create loan accounts with initial balance
+   - Auto-detect payments and reduce loan balance
+   - Track payoff progress and interest paid
+   - Debt snowball/avalanche calculators
+   - Projected payoff dates
+
+**User Requirements Met:**
+- ✅ Main categories are free and system-provided
+- ✅ Sub-categories support customization (infrastructure ready, UI planned for premium)
+- ✅ Loan categories prepared for balance tracking (premium feature)
+- ✅ Generic placeholders (Income 2, Subscription 1, etc.) can be renamed (premium)
+
+**Testing:**
+- Migration ready to run in Supabase
+- 100+ categories seeded
+- RLS policies ensure proper access control
+
+---
+
 ## Upcoming Work
 
 ### T-05: PDF Upload & Parse (Optional - "Should")

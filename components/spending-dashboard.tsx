@@ -21,6 +21,13 @@ export function SpendingDashboard() {
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedMonth, setSelectedMonth] = useState<string>('all')
+  const [showShareModal, setShowShareModal] = useState(false)
+  const [shareMode, setShareMode] = useState<'percentage' | 'amount'>('percentage')
+  const [hasNativeShare, setHasNativeShare] = useState(false)
+
+  useEffect(() => {
+    setHasNativeShare(typeof navigator !== 'undefined' && 'share' in navigator)
+  }, [])
 
   useEffect(() => {
     fetchTransactions()
@@ -112,6 +119,51 @@ export function SpendingDashboard() {
     })
   }
 
+  function handleShare() {
+    const text = generateShareText()
+
+    if (navigator.share) {
+      // Use native share if available (mobile)
+      navigator.share({
+        title: 'Mine utgifter - Financial Clarity Engine',
+        text: text,
+      }).catch(() => {
+        // Fallback to clipboard if share is cancelled
+        copyToClipboard(text)
+      })
+    } else {
+      // Desktop: copy to clipboard
+      copyToClipboard(text)
+    }
+  }
+
+  function copyToClipboard(text: string) {
+    navigator.clipboard.writeText(text).then(() => {
+      alert('✓ Kopiert til utklippstavle! Lim inn hvor du vil dele.')
+    }).catch(() => {
+      alert('Kunne ikke kopiere. Prøv igjen.')
+    })
+  }
+
+  function generateShareText(): string {
+    const header = `📊 Mine utgifter - ${formatMonthHeader(selectedMonth)}\n\n`
+
+    const categories = categoryData
+      .slice(0, 5) // Top 5 categories
+      .map(cat => {
+        if (shareMode === 'percentage') {
+          return `${cat.category}: ${cat.percentage.toFixed(1)}%`
+        } else {
+          return `${cat.category}: ${formatAmount(cat.total)}`
+        }
+      })
+      .join('\n')
+
+    const footer = `\n\n💡 Sporet med Financial Clarity Engine`
+
+    return header + categories + footer
+  }
+
   const uncategorizedExpenses = filteredTransactions
     .filter(t => t.amount < 0 && t.category === null)
     .reduce((sum, t) => sum + Math.abs(t.amount), 0)
@@ -151,6 +203,15 @@ export function SpendingDashboard() {
           <h2 className="text-xl font-semibold text-gray-900">
             Forbruksoversikt
           </h2>
+          <button
+            onClick={() => setShowShareModal(true)}
+            className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+            </svg>
+            Del
+          </button>
         </div>
 
         <div className="flex flex-wrap gap-3 items-center">
@@ -241,6 +302,80 @@ export function SpendingDashboard() {
           </div>
         )}
       </div>
+
+      {/* Share Modal */}
+      {showShareModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
+            <div className="px-6 py-4 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-gray-900">Del utgifter</h3>
+                <button
+                  onClick={() => setShowShareModal(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <div className="p-6 space-y-4">
+              {/* Toggle between percentage and amount */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Velg visning
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={() => setShareMode('percentage')}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      shareMode === 'percentage'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    Prosent (%)
+                  </button>
+                  <button
+                    onClick={() => setShareMode('amount')}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      shareMode === 'amount'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    Beløp (kr)
+                  </button>
+                </div>
+              </div>
+
+              {/* Preview */}
+              <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                <div className="text-xs font-medium text-gray-500 mb-2">Forhåndsvisning:</div>
+                <pre className="text-sm text-gray-900 whitespace-pre-wrap font-mono">
+                  {generateShareText()}
+                </pre>
+              </div>
+
+              {/* Share button */}
+              <button
+                onClick={() => {
+                  handleShare()
+                  setShowShareModal(false)
+                }}
+                className="w-full px-4 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                </svg>
+                {hasNativeShare ? 'Del' : 'Kopier til utklippstavle'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

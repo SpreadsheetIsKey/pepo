@@ -32,6 +32,8 @@ export function TransactionList() {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [undoState, setUndoState] = useState<UndoState | null>(null)
   const [showUndo, setShowUndo] = useState(false)
+  const [selectedCategory, setSelectedCategory] = useState<string>('all')
+  const [selectedMonth, setSelectedMonth] = useState<string>('all')
 
   useEffect(() => {
     fetchTransactions()
@@ -188,6 +190,66 @@ export function TransactionList() {
     return acc
   }, {} as Record<string, Category[]>)
 
+  // Get unique months from transactions
+  const availableMonths = Array.from(new Set(
+    transactions.map(t => {
+      const date = new Date(t.transaction_date)
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
+    })
+  )).sort((a, b) => b.localeCompare(a))
+
+  // Filter transactions
+  const filteredTransactions = transactions.filter(transaction => {
+    // Category filter
+    if (selectedCategory !== 'all') {
+      if (selectedCategory === 'uncategorized') {
+        if (transaction.category !== null) return false
+      } else {
+        if (transaction.category !== selectedCategory) return false
+      }
+    }
+
+    // Month filter
+    if (selectedMonth !== 'all') {
+      const transactionMonth = new Date(transaction.transaction_date)
+      const monthKey = `${transactionMonth.getFullYear()}-${String(transactionMonth.getMonth() + 1).padStart(2, '0')}`
+      if (monthKey !== selectedMonth) return false
+    }
+
+    return true
+  })
+
+  // Group transactions by month
+  const transactionsByMonth = filteredTransactions.reduce((acc, transaction) => {
+    const date = new Date(transaction.transaction_date)
+    const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
+    if (!acc[monthKey]) {
+      acc[monthKey] = []
+    }
+    acc[monthKey].push(transaction)
+    return acc
+  }, {} as Record<string, Transaction[]>)
+
+  const monthKeys = Object.keys(transactionsByMonth).sort((a, b) => b.localeCompare(a))
+
+  function formatMonthHeader(monthKey: string) {
+    const [year, month] = monthKey.split('-')
+    const date = new Date(parseInt(year), parseInt(month) - 1)
+    return date.toLocaleDateString('nb-NO', {
+      year: 'numeric',
+      month: 'long'
+    })
+  }
+
+  // Get unique categories from transactions for filter dropdown
+  const transactionCategories = Array.from(new Set(
+    transactions
+      .filter(t => t.category !== null)
+      .map(t => t.category as string)
+  )).sort()
+
+  const uncategorizedCount = transactions.filter(t => t.category === null).length
+
   if (loading) {
     return (
       <div className="bg-white rounded-lg shadow p-6">
@@ -220,97 +282,163 @@ export function TransactionList() {
     <>
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900">
-            Transaksjoner
-          </h2>
-          <p className="text-sm text-gray-500 mt-1">
-            {transactions.length} transaksjoner (viser siste 100)
-          </p>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-xl font-semibold text-gray-900">
+              Transaksjoner
+            </h2>
+            {uncategorizedCount > 0 && (
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-amber-100 text-amber-800 border border-amber-200">
+                {uncategorizedCount} ukategorisert
+              </span>
+            )}
+          </div>
+
+          <div className="flex flex-wrap gap-3 items-center">
+            <div className="flex-1 min-w-[200px]">
+              <label htmlFor="category-filter" className="sr-only">Filtrer etter kategori</label>
+              <select
+                id="category-filter"
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+              >
+                <option value="all">Alle kategorier</option>
+                <option value="uncategorized">Ukategorisert ({uncategorizedCount})</option>
+                {transactionCategories.map(cat => (
+                  <option key={cat} value={cat}>{cat}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex-1 min-w-[200px]">
+              <label htmlFor="month-filter" className="sr-only">Filtrer etter måned</label>
+              <select
+                id="month-filter"
+                value={selectedMonth}
+                onChange={(e) => setSelectedMonth(e.target.value)}
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+              >
+                <option value="all">Alle måneder</option>
+                {availableMonths.map(month => (
+                  <option key={month} value={month}>
+                    {formatMonthHeader(month)}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="text-sm text-gray-500">
+              {filteredTransactions.length} av {transactions.length} transaksjoner
+            </div>
+          </div>
         </div>
 
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Dato
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Beskrivelse
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Bank
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Beløp
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Kategori
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {transactions.map((transaction) => (
-                <tr key={transaction.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {formatDate(transaction.transaction_date)}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-900">
-                    {transaction.description}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {transaction.bank_name || '-'}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-right">
-                    <span className={transaction.amount >= 0 ? 'text-green-600 font-medium' : 'text-gray-900'}>
-                      {formatAmount(transaction.amount)}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-sm">
-                    {editingId === transaction.id ? (
-                      <select
-                        autoFocus
-                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
-                        value={transaction.category || ''}
-                        onChange={(e) => updateCategory(transaction.id, e.target.value)}
-                        onBlur={() => setEditingId(null)}
+          {monthKeys.length === 0 ? (
+            <div className="px-6 py-8 text-center text-gray-500">
+              Ingen transaksjoner matcher filtrene
+            </div>
+          ) : (
+            monthKeys.map(monthKey => (
+              <div key={monthKey}>
+                <div className="bg-gray-100 px-6 py-2 border-b border-gray-200">
+                  <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
+                    {formatMonthHeader(monthKey)}
+                  </h3>
+                </div>
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Dato
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Beskrivelse
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Bank
+                      </th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Beløp
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Kategori
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {transactionsByMonth[monthKey].map((transaction) => (
+                      <tr
+                        key={transaction.id}
+                        className={`hover:bg-gray-50 ${!transaction.category ? 'bg-amber-50' : ''}`}
                       >
-                        <option value="">Ingen kategori</option>
-                        {Object.entries(groupedCategories).map(([mainCat, subCats]) => (
-                          <optgroup key={mainCat} label={mainCat}>
-                            {subCats.map((cat) => {
-                              const fullCategory = `${cat.main_category}: ${cat.sub_category}`
-                              return (
-                                <option key={cat.id} value={fullCategory}>
-                                  {cat.sub_category}
-                                </option>
-                              )
-                            })}
-                          </optgroup>
-                        ))}
-                      </select>
-                    ) : (
-                      <button
-                        onClick={() => setEditingId(transaction.id)}
-                        className="text-left hover:text-blue-600 focus:outline-none focus:text-blue-600"
-                      >
-                        <span className="flex items-center gap-1.5">
-                          {transaction.category ? (
-                            <>
-                              {getConfidenceBadge(transaction.category_confidence)}
-                              <span>{transaction.category}</span>
-                            </>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {formatDate(transaction.transaction_date)}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-900">
+                          {transaction.description}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {transaction.bank_name || '-'}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-right">
+                          <span className={transaction.amount >= 0 ? 'text-green-600 font-medium' : 'text-gray-900'}>
+                            {formatAmount(transaction.amount)}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-sm">
+                          {editingId === transaction.id ? (
+                            <select
+                              autoFocus
+                              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                              value={transaction.category || ''}
+                              onChange={(e) => updateCategory(transaction.id, e.target.value)}
+                              onBlur={() => setEditingId(null)}
+                            >
+                              <option value="">Ingen kategori</option>
+                              {Object.entries(groupedCategories).map(([mainCat, subCats]) => (
+                                <optgroup key={mainCat} label={mainCat}>
+                                  {subCats.map((cat) => {
+                                    const fullCategory = `${cat.main_category}: ${cat.sub_category}`
+                                    return (
+                                      <option key={cat.id} value={fullCategory}>
+                                        {cat.sub_category}
+                                      </option>
+                                    )
+                                  })}
+                                </optgroup>
+                              ))}
+                            </select>
                           ) : (
-                            <span className="text-gray-400 italic">Ikke kategorisert</span>
+                            <button
+                              onClick={() => setEditingId(transaction.id)}
+                              className="text-left hover:text-blue-600 focus:outline-none focus:text-blue-600"
+                            >
+                              <span className="flex items-center gap-1.5">
+                                {transaction.category ? (
+                                  <>
+                                    {getConfidenceBadge(transaction.category_confidence)}
+                                    <span>{transaction.category}</span>
+                                  </>
+                                ) : (
+                                  <span className="flex items-center gap-1.5 text-amber-700 font-medium">
+                                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                      <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                    </svg>
+                                    Ikke kategorisert
+                                  </span>
+                                )}
+                              </span>
+                            </button>
                           )}
-                        </span>
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ))
+          )}
         </div>
       </div>
 

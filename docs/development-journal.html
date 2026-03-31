@@ -1240,32 +1240,45 @@ commit 3d1667e - Implement Google OAuth authentication (T-02)</code></pre>
       <li>✅ T-01 Complete - Project setup & Supabase init</li>
       <li>✅ T-02 Complete - Google OAuth login</li>
       <li>✅ T-03 Complete - Magic link email login</li>
-      <li>✅ Landing page live with email collection</li>
-      <li>⏳ T-04: CSV upload & parse</li>
-      <li>⏳ T-05: PDF upload & parse (Optional)</li>
+      <li>✅ T-04 Complete - CSV & Excel upload with column mapping</li>
+      <li>✅ T-06 Complete - Transaction deduplication with review UI</li>
+      <li>✅ T-07 Complete - Norwegian category taxonomy (100+ categories)</li>
+      <li>✅ T-08 Complete - Auto-categorization engine (80+ merchant rules)</li>
+      <li>⏳ T-05: PDF upload & parse (Deprioritized)</li>
+      <li>⏳ T-09: Category correction UI (Next Up)</li>
     </ul>
 
-    <h3>Completed Tickets (3/14)</h3>
+    <h3>Completed Tickets (7/14 - 50% Complete!)</h3>
     <p><strong>T-01:</strong> Next.js + Supabase setup, deployment to Vercel ✅</p>
     <p><strong>T-02:</strong> Google OAuth authentication with protected dashboard ✅</p>
     <p><strong>T-03:</strong> Email magic link authentication ✅</p>
+    <p><strong>T-04:</strong> CSV & Excel upload with interactive column mapping ✅</p>
+    <p><strong>T-06:</strong> Duplicate detection with manual review interface ✅</p>
+    <p><strong>T-07:</strong> 14 main categories, 100+ sub-categories in Norwegian ✅</p>
+    <p><strong>T-08:</strong> Pattern matching engine with 80+ Norwegian merchant rules ✅</p>
 
-    <h3>T-04: CSV Upload & Parse (Next Up)</h3>
+    <h3>T-09: Category Correction UI (Next Up)</h3>
     <p><strong>Acceptance Criteria:</strong></p>
     <ol>
-      <li>File upload UI on dashboard</li>
-      <li>Parse DNB/Nordea/Sparebank 1 CSV formats</li>
-      <li>Store transactions in database</li>
-      <li>Handle duplicate uploads gracefully</li>
+      <li>Category badge shown on every transaction row</li>
+      <li>Category picker opens quickly and shows all categories</li>
+      <li>Selection saves instantly</li>
+      <li>Undo snackbar works for corrections</li>
     </ol>
 
-    <p><strong>Implementation Plan:</strong></p>
+    <p><strong>What's Already Working:</strong></p>
     <ul>
-      <li>Create transactions table in Supabase</li>
-      <li>Build CSV upload component</li>
-      <li>Implement CSV parser for Norwegian banks</li>
-      <li>Add file validation and error handling</li>
-      <li>Display upload success/error feedback</li>
+      <li>✅ Transactions automatically categorized on CSV upload</li>
+      <li>✅ 80+ merchant patterns (REMA 1000, Circle K, Netflix, etc.)</li>
+      <li>✅ Category confidence scores stored</li>
+      <li>⏳ Need UI to view and correct categories</li>
+    </ul>
+
+    <p><strong>Next Steps:</strong></p>
+    <ul>
+      <li>T-09: Category correction UI</li>
+      <li>T-10: Transaction list view with filters</li>
+      <li>T-11: Spending dashboard with visualizations</li>
     </ul>
 
     <h3>Future Phases</h3>

@@ -630,6 +630,78 @@ categories:
 
 ---
 
+### T-12: Monthly Income vs Expense Summary ✅
+**Date:** March 31, 2026
+**Status:** Complete
+
+**What was done:**
+1. **Three-Card Overview:**
+   - Income card (green gradient, + icon)
+   - Expenses card (red gradient, - icon)
+   - Net savings card (blue for positive, amber for negative)
+   - All cards show amount + transaction count
+
+2. **Net Savings Calculation:**
+   - Automatically calculates income - expenses
+   - Positive net: Blue gradient with up arrow, shows "Overskudd"
+   - Negative net: Amber gradient with down arrow, shows "Underskudd"
+   - Clear visual distinction between surplus and deficit
+
+3. **Savings Rate:**
+   - Percentage calculation: (net savings / income) × 100%
+   - Progress bar visualization
+   - Contextual messaging:
+     - Positive: "Du sparer X% av inntekten din"
+     - Negative: "Du bruker X% mer enn du tjener"
+
+4. **Month Filtering:**
+   - Dropdown to select month or all months
+   - Norwegian month names
+   - Defaults to most recent month
+   - Updates all calculations when changed
+
+5. **Responsive Design:**
+   - Grid layout: 1 column mobile, 3 columns desktop
+   - Gradient backgrounds for visual appeal
+   - Icons indicating direction and type
+
+**Files created:**
+- `components/income-expense-summary.tsx` - Income vs expense component
+
+**Files modified:**
+- `app/dashboard/page.tsx` - Added summary at top of insights section
+
+**Key decisions:**
+- Separate income/expense/savings cards instead of single card
+  - Rationale: Easier to scan, clearer information hierarchy
+- Blue for surplus, amber for deficit (not red)
+  - Rationale: Deficit isn't necessarily bad (could be planned), amber = caution not error
+- Savings rate as percentage of income
+  - Rationale: Standard financial metric, easy to understand and compare
+- Rounded amounts (no decimals)
+  - Rationale: High-level summary doesn't need precision
+
+**Testing:**
+- TypeScript compilation successful
+- Calculations verified (income - expenses = net)
+- Savings rate formula correct
+- Color coding works for both positive and negative
+
+**User Experience:**
+- Immediate financial health check
+- Clear visual feedback (colors + icons + arrows)
+- Savings rate provides benchmark
+- Transaction counts add context
+
+**Future enhancements (not MVP):**
+- Trend comparison (this month vs last month)
+- Average savings rate over time
+- Budget targets and alerts
+- Cash flow graph (income/expense over time)
+- Year-to-date totals
+
+---
+
 ## Upcoming Work
 
 ### T-05: PDF Upload & Parse (Optional - "Should")

@@ -1,10 +1,10 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { SignOutButton } from '@/components/sign-out-button'
-import { DashboardContent } from '@/components/dashboard-content'
+import { BankAccountsSettings } from '@/components/bank-accounts-settings'
 import Link from 'next/link'
 
-export default async function DashboardPage() {
+export default async function SettingsPage() {
   const supabase = await createClient()
 
   const {
@@ -22,29 +22,24 @@ export default async function DashboardPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
             <div>
+              <Link href="/dashboard" className="text-sm text-blue-600 hover:text-blue-800 mb-2 inline-block">
+                ← Tilbake til Dashboard
+              </Link>
               <h1 className="text-3xl font-bold text-gray-900">
-                Dashboard
+                Innstillinger
               </h1>
               <p className="mt-1 text-sm text-gray-600">
-                Velkommen tilbake, {user.email}
+                Administrer bankkontoer og preferanser
               </p>
             </div>
-            <div className="flex items-center gap-4">
-              <Link
-                href="/settings"
-                className="px-4 py-2 text-sm border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                Innstillinger
-              </Link>
-              <SignOutButton />
-            </div>
+            <SignOutButton />
           </div>
         </div>
       </header>
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <DashboardContent />
+        <BankAccountsSettings />
       </main>
     </div>
   )

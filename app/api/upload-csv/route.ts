@@ -169,7 +169,7 @@ export async function POST(request: Request) {
     }
 
     // Parse request body
-    const { csvContent, fileName, columnMapping, mode, transactionsToImport } = await request.json()
+    const { csvContent, fileName, columnMapping, mode, transactionsToImport, bankAccountId } = await request.json()
 
     if (!csvContent || !fileName || !columnMapping) {
       return NextResponse.json(
@@ -231,6 +231,7 @@ export async function POST(request: Request) {
           description: t.description,
           bank_name: bankName,
           account_number: t.accountNumber || null,
+          bank_account_id: bankAccountId || null,
           category,
           category_confidence: categoryConfidence,
           file_name: fileName,

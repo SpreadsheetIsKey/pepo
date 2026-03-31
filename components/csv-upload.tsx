@@ -1,12 +1,20 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { CsvColumnMapper } from './csv-column-mapper'
 import { DuplicateReview } from './duplicate-review'
 import * as XLSX from 'xlsx'
 
 type UploadStatus = 'idle' | 'uploading' | 'mapping' | 'reviewing' | 'processing' | 'success' | 'error'
+
+interface BankAccount {
+  id: string
+  bank_name: string
+  account_name: string
+  account_number: string | null
+  is_default: boolean
+}
 
 interface ColumnMapping {
   date: number | null
@@ -38,6 +46,77 @@ export function CsvUpload({ onUploadComplete }: CsvUploadProps = {}) {
   const [transactionCount, setTransactionCount] = useState(0)
   const [newTransactions, setNewTransactions] = useState<Transaction[]>([])
   const [duplicateTransactions, setDuplicateTransactions] = useState<Transaction[]>([])
+  const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([])
+  const [selectedBankAccountId, setSelectedBankAccountId] = useState<string | null>(null)
+  const [showNewBankAccountForm, setShowNewBankAccountForm] = useState(false)
+  const [newBankName, setNewBankName] = useState('')
+  const [newAccountName, setNewAccountName] = useState('')
+  const [newAccountNumber, setNewAccountNumber] = useState('')
+
+  // Fetch bank accounts on mount
+  useEffect(() => {
+    fetchBankAccounts()
+  }, [])
+
+  async function fetchBankAccounts() {
+    try {
+      const response = await fetch('/api/bank-accounts')
+      const data = await response.json()
+      if (response.ok) {
+        setBankAccounts(data.bankAccounts || [])
+        // Set default account as selected
+        const defaultAccount = data.bankAccounts?.find((acc: BankAccount) => acc.is_default)
+        if (defaultAccount) {
+          setSelectedBankAccountId(defaultAccount.id)
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching bank accounts:', error)
+    }
+  }
+
+  async function createBankAccount() {
+    if (!newBankName || !newAccountName) {
+      setStatus('error')
+      setMessage('Banknavn og kontonavn er påkrevd')
+      return null
+    }
+
+    try {
+      const response = await fetch('/api/bank-accounts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          bank_name: newBankName,
+          account_name: newAccountName,
+          account_number: newAccountNumber || null,
+          is_default: bankAccounts.length === 0, // First account is default
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Kunne ikke opprette bankkonto')
+      }
+
+      // Refresh bank accounts list
+      await fetchBankAccounts()
+      setSelectedBankAccountId(data.bankAccount.id)
+      setShowNewBankAccountForm(false)
+      setNewBankName('')
+      setNewAccountName('')
+      setNewAccountNumber('')
+
+      return data.bankAccount.id
+    } catch (error: any) {
+      setStatus('error')
+      setMessage(error.message || 'Kunne ikke opprette bankkonto')
+      return null
+    }
+  }
 
   const convertXlsxToCsv = async (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -118,8 +197,26 @@ export function CsvUpload({ onUploadComplete }: CsvUploadProps = {}) {
 
   const handleMappingComplete = async (mapping: ColumnMapping) => {
     setStatus('processing')
-    setMessage('Sjekker for duplikater...')
     setColumnMapping(mapping)
+
+    // Handle bank account selection or creation
+    let bankAccountId = selectedBankAccountId
+
+    if (showNewBankAccountForm) {
+      setMessage('Oppretter bankkonto...')
+      bankAccountId = await createBankAccount()
+      if (!bankAccountId) {
+        return // Error already handled in createBankAccount
+      }
+    }
+
+    if (!bankAccountId && bankAccounts.length === 0) {
+      setStatus('error')
+      setMessage('Vennligst opprett en bankkonto først')
+      return
+    }
+
+    setMessage('Sjekker for duplikater...')
 
     try {
       // Step 1: Check for duplicates
@@ -133,6 +230,7 @@ export function CsvUpload({ onUploadComplete }: CsvUploadProps = {}) {
           fileName,
           columnMapping: mapping,
           mode: 'check',
+          bankAccountId,
         }),
       })
 
@@ -175,6 +273,7 @@ export function CsvUpload({ onUploadComplete }: CsvUploadProps = {}) {
           columnMapping,
           mode: 'import',
           transactionsToImport,
+          bankAccountId: selectedBankAccountId,
         }),
       })
 
@@ -256,6 +355,96 @@ export function CsvUpload({ onUploadComplete }: CsvUploadProps = {}) {
       <p className="text-sm text-gray-600 mb-6">
         Støttede banker: DNB, Nordea, Sparebank 1. Last opp CSV eller Excel-filer fra nettbanken din.
       </p>
+
+      {/* Bank Account Selector */}
+      <div className="mb-6">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Velg bankkonto
+        </label>
+        {!showNewBankAccountForm ? (
+          <div className="space-y-2">
+            <select
+              value={selectedBankAccountId || ''}
+              onChange={(e) => setSelectedBankAccountId(e.target.value || null)}
+              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              disabled={status === 'uploading' || status === 'processing'}
+            >
+              <option value="">Velg konto...</option>
+              {bankAccounts.map((account) => (
+                <option key={account.id} value={account.id}>
+                  {account.bank_name} - {account.account_name}
+                  {account.account_number ? ` (${account.account_number})` : ''}
+                  {account.is_default ? ' [Standard]' : ''}
+                </option>
+              ))}
+            </select>
+            <button
+              type="button"
+              onClick={() => setShowNewBankAccountForm(true)}
+              className="text-sm text-blue-600 hover:text-blue-800"
+              disabled={status === 'uploading' || status === 'processing'}
+            >
+              + Opprett ny bankkonto
+            </button>
+          </div>
+        ) : (
+          <div className="border border-gray-300 rounded-md p-4 space-y-3">
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">
+                Banknavn *
+              </label>
+              <input
+                type="text"
+                value={newBankName}
+                onChange={(e) => setNewBankName(e.target.value)}
+                placeholder="DNB, Nordea, Sparebank 1..."
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">
+                Kontonavn *
+              </label>
+              <input
+                type="text"
+                value={newAccountName}
+                onChange={(e) => setNewAccountName(e.target.value)}
+                placeholder="Brukskonto, Sparekonto..."
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">
+                Kontonummer (valgfritt)
+              </label>
+              <input
+                type="text"
+                value={newAccountNumber}
+                onChange={(e) => setNewAccountNumber(e.target.value)}
+                placeholder="1234 56 78901"
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+              />
+            </div>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowNewBankAccountForm(false)
+                  setNewBankName('')
+                  setNewAccountName('')
+                  setNewAccountNumber('')
+                }}
+                className="px-3 py-1.5 text-sm border border-gray-300 rounded-md hover:bg-gray-50"
+              >
+                Avbryt
+              </button>
+              <p className="text-xs text-gray-500 mt-1">
+                Kontoen vil bli opprettet når du laster opp filen
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* Upload Area */}
       <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors">

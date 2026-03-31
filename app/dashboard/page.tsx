@@ -1,10 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { SignOutButton } from '@/components/sign-out-button'
-import { CsvUpload } from '@/components/csv-upload'
-import { TransactionList } from '@/components/transaction-list'
-import { SpendingDashboard } from '@/components/spending-dashboard'
-import { IncomeExpenseSummary } from '@/components/income-expense-summary'
+import { DashboardContent } from '@/components/dashboard-content'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -38,25 +35,7 @@ export default async function DashboardPage() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* CSV Upload Section */}
-        <div className="mb-8">
-          <CsvUpload />
-        </div>
-
-        {/* Income vs Expense Summary */}
-        <div className="mb-8">
-          <IncomeExpenseSummary />
-        </div>
-
-        {/* Spending Dashboard Section */}
-        <div className="mb-8">
-          <SpendingDashboard />
-        </div>
-
-        {/* Transaction List Section */}
-        <div className="mb-8">
-          <TransactionList />
-        </div>
+        <DashboardContent />
       </main>
     </div>
   )

@@ -25,7 +25,11 @@ interface UndoState {
   newCategory: string
 }
 
-export function TransactionList() {
+interface TransactionListProps {
+  onTransactionUpdate?: () => void
+}
+
+export function TransactionList({ onTransactionUpdate }: TransactionListProps = {}) {
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(true)
@@ -36,11 +40,14 @@ export function TransactionList() {
   const [selectedMonth, setSelectedMonth] = useState<string>('all')
   const [searchQuery, setSearchQuery] = useState<string>('')
   const [typeFilter, setTypeFilter] = useState<string>('all') // all, income, expense, uncategorized
+  const [limit, setLimit] = useState<number>(100)
+  const [hasMore, setHasMore] = useState<boolean>(true)
+  const [loadingMore, setLoadingMore] = useState<boolean>(false)
 
   useEffect(() => {
     fetchTransactions()
     fetchCategories()
-  }, [])
+  }, [limit])
 
   useEffect(() => {
     if (showUndo) {
@@ -58,14 +65,23 @@ export function TransactionList() {
       .from('transactions')
       .select('*')
       .order('transaction_date', { ascending: false })
-      .limit(100)
+      .limit(limit)
 
     if (error) {
       console.error('Error fetching transactions:', error)
     } else {
       setTransactions(data || [])
+      // Check if there are more transactions
+      setHasMore(data && data.length === limit)
     }
     setLoading(false)
+    setLoadingMore(false)
+  }
+
+  function loadMoreTransactions() {
+    if (!hasMore || loadingMore) return
+    setLoadingMore(true)
+    setLimit(prev => prev + 100)
   }
 
   async function fetchCategories() {
@@ -126,6 +142,9 @@ export function TransactionList() {
       )
       setShowUndo(false)
       setUndoState(null)
+    } else {
+      // Notify parent that transactions changed
+      onTransactionUpdate?.()
     }
 
     setEditingId(null)
@@ -529,6 +548,29 @@ export function TransactionList() {
             ))
           )}
         </div>
+
+        {/* Load More Button */}
+        {hasMore && !loading && transactions.length > 0 && (
+          <div className="px-6 py-4 border-t border-gray-200 text-center">
+            <button
+              onClick={loadMoreTransactions}
+              disabled={loadingMore}
+              className="px-6 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+            >
+              {loadingMore ? (
+                <span className="flex items-center gap-2">
+                  <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Laster mer...
+                </span>
+              ) : (
+                `Last mer (${transactions.length} lastet)`
+              )}
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Undo Snackbar */}

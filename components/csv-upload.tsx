@@ -25,7 +25,11 @@ interface Transaction {
   index: number
 }
 
-export function CsvUpload() {
+interface CsvUploadProps {
+  onUploadComplete?: () => void
+}
+
+export function CsvUpload({ onUploadComplete }: CsvUploadProps = {}) {
   const [status, setStatus] = useState<UploadStatus>('idle')
   const [message, setMessage] = useState('')
   const [fileName, setFileName] = useState<string | null>(null)
@@ -186,6 +190,9 @@ export function CsvUpload() {
       setCsvContent('')
       setNewTransactions([])
       setDuplicateTransactions([])
+
+      // Notify parent that upload completed
+      onUploadComplete?.()
     } catch (error: any) {
       console.error('Import error:', error)
       setStatus('error')

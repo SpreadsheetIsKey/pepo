@@ -4,6 +4,7 @@ import { SignOutButton } from '@/components/sign-out-button'
 import { CsvUpload } from '@/components/csv-upload'
 import { TransactionList } from '@/components/transaction-list'
 import { SpendingDashboard } from '@/components/spending-dashboard'
+import { IncomeExpenseSummary } from '@/components/income-expense-summary'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -40,6 +41,11 @@ export default async function DashboardPage() {
         {/* CSV Upload Section */}
         <div className="mb-8">
           <CsvUpload />
+        </div>
+
+        {/* Income vs Expense Summary */}
+        <div className="mb-8">
+          <IncomeExpenseSummary />
         </div>
 
         {/* Spending Dashboard Section */}

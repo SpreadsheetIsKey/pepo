@@ -552,6 +552,84 @@ categories:
 
 ---
 
+### T-11: Spending Category Dashboard ✅
+**Date:** March 31, 2026
+**Status:** Complete
+
+**What was done:**
+1. **Visual Category Breakdown:**
+   - Categories ranked by total spending (highest first)
+   - Color-coded progress bars (blue, indigo, purple, gray)
+   - Percentage calculation for each category
+   - Amount spent formatted in Norwegian kroner
+
+2. **Total Spending Card:**
+   - Prominent card with gradient background (blue/indigo)
+   - Shows total for selected period
+   - Includes uncategorized expenses indicator
+   - Norwegian currency formatting (rounded)
+
+3. **Category Details:**
+   - Three data points per category:
+     - Category name with transaction count
+     - Amount spent with percentage
+     - Visual progress bar showing relative spending
+   - Top 3 categories highlighted with distinct colors
+   - Responsive spacing and layout
+
+4. **Month Filtering:**
+   - Dropdown to select specific month or all months
+   - Norwegian month names (e.g., "mars 2026")
+   - Defaults to most recent month on page load
+   - Updates all statistics when changed
+
+5. **Smart Calculations:**
+   - Only counts expenses (negative amounts)
+   - Filters out income transactions
+   - Tracks uncategorized expense total
+   - Shows transaction count per category
+
+**Files created:**
+- `components/spending-dashboard.tsx` - Main dashboard component
+
+**Files modified:**
+- `app/dashboard/page.tsx` - Added spending dashboard above transaction list
+
+**Key decisions:**
+- Expenses only in dashboard (income excluded)
+  - Rationale: Spending insights are primary use case, income is separate concern
+- Rounded currency amounts (no decimals)
+  - Rationale: Easier scanning at high level, decimals matter more in detail view
+- Default to latest month instead of "all"
+  - Rationale: Most users care about current/recent month first
+- Progress bars instead of pie chart
+  - Rationale: Easier to scan, better for mobile, no library dependency
+- Color coding top 3 categories
+  - Rationale: Visual hierarchy, highlights biggest spending areas
+
+**Testing:**
+- TypeScript compilation successful
+- Renders without errors
+- Calculations verified (percentages sum to 100%)
+- Month filtering works correctly
+
+**User Experience:**
+- Clear visual hierarchy (biggest spenders stand out)
+- Quick monthly overview at a glance
+- Transaction counts provide context
+- Uncategorized expenses are tracked separately
+
+**Future enhancements (not MVP):**
+- Trend comparison (this month vs last month)
+- Budget limits per category
+- Spending alerts when approaching limits
+- Category drill-down (click to see transactions)
+- Export dashboard as image/PDF
+- Custom date range (not just month)
+- Income vs expense comparison chart
+
+---
+
 ## Upcoming Work
 
 ### T-05: PDF Upload & Parse (Optional - "Should")

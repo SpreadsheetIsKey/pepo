@@ -345,6 +345,71 @@ categories:
 
 ---
 
+### T-08: Rule-based Categorization Engine ✅
+**Date:** March 31, 2026
+**Status:** Complete
+
+**What was done:**
+1. **Categorization Rules Database:**
+   - Created categorization_rules table with pattern matching support
+   - Supports 3 pattern types: contains, regex, exact
+   - Priority-based rule ordering (lower = higher priority)
+   - Confidence scores (0.00-1.00) for categorization quality
+   - RLS policies for system and user-specific rules
+   - Usage tracking (match_count, last_matched_at)
+
+2. **Seeded 80+ Norwegian Merchant Rules:**
+   - Grocery stores: REMA 1000, KIWI, COOP, MENY, BUNNPRIS, EXTRA, JOKER, SPAR
+   - Restaurants/Fast food: McDonald's, Burger King, Peppes, Dolly Dimple
+   - Cafés: Starbucks, Kaffebrenneriet, Espresso House
+   - Gas stations: Circle K, Shell, YX, ESSO
+   - Public transit: Ruter, VY, Skyss, ATB, Kolumbus, NSB
+   - Toll roads: Autopass, Fjellinjen, Bomring
+   - Streaming: Netflix, Spotify, HBO, Disney+, Viaplay
+   - Clothing: H&M, Zara, Cubus, Lindex, KappAhl, Dressmann
+   - Utilities: Fjordkraft, Tibber, Hafslund
+   - Gyms: SATS, EVO, Elixia, Fresh Fitness
+   - Bank fees: Gebyr, Kortavgift, Årsavgift
+
+3. **Pattern Matching Engine (lib/categorization.ts):**
+   - categorizeTransaction() - Matches description against rules
+   - Case-sensitive/insensitive matching support
+   - Returns matched category with confidence score
+   - Fetches both system and user-specific rules
+   - Priority-based rule evaluation
+
+4. **CSV Upload Integration:**
+   - Automatically categorizes transactions during import
+   - Runs pattern matching on each transaction description
+   - Stores category and confidence in database
+   - Graceful fallback if categorization fails
+
+**Files created:**
+- `supabase/migrations/20260331_create_categorization_rules.sql` - Rules table with 80+ merchant patterns
+- `lib/categorization.ts` - Pattern matching engine
+
+**Files modified:**
+- `app/api/upload-csv/route.ts` - Added auto-categorization during CSV import
+
+**Key decisions:**
+- Contains pattern type for most rules (simplest, fastest)
+- Generic "Abonnement 1" for streaming services (users can rename in premium)
+- Priority system allows specific rules to override generic ones
+- User rules can be added later (premium feature)
+- Confidence scores track categorization quality
+
+**Testing:**
+- Migration successfully run in Supabase
+- 80+ rules seeded
+- Ready to auto-categorize on next CSV upload
+
+**Future enhancements ready:**
+- Users can create custom rules (premium feature)
+- Machine learning from manual corrections (T-09)
+- Rule match analytics for improving categorization
+
+---
+
 ## Upcoming Work
 
 ### T-05: PDF Upload & Parse (Optional - "Should")
@@ -358,19 +423,6 @@ categories:
 - Show user which transactions are duplicates before import
 - Allow manual override of deduplication
 - Prevent accidental double-imports
-
-### T-07: Category Data Model & Seed
-- Define category taxonomy (income, housing, food, transport, etc.)
-- Create categories table
-- Seed database with standard Norwegian expense categories
-- Support custom user categories
-
-### T-08: Rule-based Categorization Engine
-- Create categorization rules table
-- Implement pattern matching (regex on description)
-- Merchant name recognition
-- Amount-based rules
-- Auto-categorize on import with confidence score
 
 ### T-09: Category Correction UI
 - Allow users to review and correct auto-categorized transactions

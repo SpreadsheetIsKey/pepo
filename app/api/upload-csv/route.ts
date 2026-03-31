@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import crypto from 'crypto'
+import { categorizeTransaction } from '@/lib/categorization'
 
 interface ParsedTransaction {
   date: string
@@ -195,21 +196,40 @@ export async function POST(request: Request) {
     else if (lowerFileName.includes('sparebank') || lowerFileName.includes('sb1'))
       bankName = 'Sparebank 1'
 
-    // Prepare transactions for database
+    // Prepare transactions for database with auto-categorization
     const now = new Date().toISOString()
-    const dbTransactions = transactions.map(t => ({
-      user_id: user.id,
-      transaction_date: t.date,
-      amount: t.amount,
-      description: t.description,
-      bank_name: bankName,
-      account_number: t.accountNumber || null,
-      category: null, // Will be set by categorization engine (T-08)
-      category_confidence: null,
-      file_name: fileName,
-      file_uploaded_at: now,
-      row_hash: generateRowHash(user.id, t.date, t.amount, t.description),
-    }))
+    const dbTransactions = await Promise.all(
+      transactions.map(async (t) => {
+        // Attempt to auto-categorize the transaction
+        let category = null
+        let categoryConfidence = null
+
+        try {
+          const categorizationResult = await categorizeTransaction(t.description, user.id)
+          if (categorizationResult) {
+            category = `${categorizationResult.main_category}: ${categorizationResult.sub_category}`
+            categoryConfidence = categorizationResult.confidence
+          }
+        } catch (error) {
+          console.error('Categorization error for transaction:', t.description, error)
+          // Continue without categorization if it fails
+        }
+
+        return {
+          user_id: user.id,
+          transaction_date: t.date,
+          amount: t.amount,
+          description: t.description,
+          bank_name: bankName,
+          account_number: t.accountNumber || null,
+          category,
+          category_confidence: categoryConfidence,
+          file_name: fileName,
+          file_uploaded_at: now,
+          row_hash: generateRowHash(user.id, t.date, t.amount, t.description),
+        }
+      })
+    )
 
     // Check for duplicates
     // Get all existing hashes for this user

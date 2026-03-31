@@ -159,7 +159,7 @@ export async function POST(request: Request) {
     }
 
     // Parse request body
-    const { csvContent, fileName, columnMapping } = await request.json()
+    const { csvContent, fileName, columnMapping, mode, transactionsToImport } = await request.json()
 
     if (!csvContent || !fileName || !columnMapping) {
       return NextResponse.json(
@@ -211,25 +211,82 @@ export async function POST(request: Request) {
       row_hash: generateRowHash(user.id, t.date, t.amount, t.description),
     }))
 
-    // Insert transactions into database
-    const { data, error } = await supabase
+    // Check for duplicates
+    // Get all existing hashes for this user
+    const { data: existingTransactions, error: checkError } = await supabase
       .from('transactions')
-      .insert(dbTransactions)
-      .select()
+      .select('row_hash')
+      .eq('user_id', user.id)
 
-    if (error) {
-      console.error('Database error:', error)
+    if (checkError) {
+      console.error('Duplicate check error:', JSON.stringify(checkError, null, 2))
       return NextResponse.json(
-        { error: 'Kunne ikke lagre transaksjoner i databasen' },
+        { error: `Kunne ikke sjekke for duplikater: ${checkError.message || 'Unknown error'}` },
         { status: 500 }
       )
     }
 
-    return NextResponse.json({
-      success: true,
-      count: data.length,
-      message: `${data.length} transaksjoner importert`,
-    })
+    const existingHashes = new Set(existingTransactions?.map(t => t.row_hash) || [])
+    const newTransactions = dbTransactions.filter(t => !existingHashes.has(t.row_hash))
+    const duplicateTransactions = dbTransactions.filter(t => existingHashes.has(t.row_hash))
+
+    // If mode is "check", return duplicate info without inserting
+    if (mode === 'check' || !mode) {
+      return NextResponse.json({
+        requiresReview: duplicateTransactions.length > 0,
+        newCount: newTransactions.length,
+        duplicateCount: duplicateTransactions.length,
+        totalCount: dbTransactions.length,
+        newTransactions: newTransactions.map((t, index) => ({ ...t, index })),
+        duplicateTransactions: duplicateTransactions.map((t, index) => ({ ...t, index })),
+      })
+    }
+
+    // If mode is "import", insert only selected transactions
+    if (mode === 'import') {
+      if (!transactionsToImport || !Array.isArray(transactionsToImport)) {
+        return NextResponse.json(
+          { error: 'Ingen transaksjoner valgt for import' },
+          { status: 400 }
+        )
+      }
+
+      // Filter to only import selected transactions by row_hash
+      const selectedHashes = new Set(transactionsToImport.map((t: any) => t.row_hash))
+      const transactionsToInsert = dbTransactions.filter(t => selectedHashes.has(t.row_hash))
+
+      if (transactionsToInsert.length === 0) {
+        return NextResponse.json(
+          { error: 'Ingen transaksjoner valgt for import' },
+          { status: 400 }
+        )
+      }
+
+      // Insert transactions into database
+      const { data, error } = await supabase
+        .from('transactions')
+        .insert(transactionsToInsert)
+        .select()
+
+      if (error) {
+        console.error('Database error:', error)
+        return NextResponse.json(
+          { error: 'Kunne ikke lagre transaksjoner i databasen' },
+          { status: 500 }
+        )
+      }
+
+      return NextResponse.json({
+        success: true,
+        count: data.length,
+        message: `${data.length} transaksjoner importert`,
+      })
+    }
+
+    return NextResponse.json(
+      { error: 'Ugyldig modus' },
+      { status: 400 }
+    )
   } catch (error: any) {
     console.error('Unexpected error:', error)
     return NextResponse.json(

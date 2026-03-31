@@ -3,9 +3,10 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { CsvColumnMapper } from './csv-column-mapper'
+import { DuplicateReview } from './duplicate-review'
 import * as XLSX from 'xlsx'
 
-type UploadStatus = 'idle' | 'uploading' | 'mapping' | 'processing' | 'success' | 'error'
+type UploadStatus = 'idle' | 'uploading' | 'mapping' | 'reviewing' | 'processing' | 'success' | 'error'
 
 interface ColumnMapping {
   date: number | null
@@ -15,12 +16,24 @@ interface ColumnMapping {
   amountCombined: number | null
 }
 
+interface Transaction {
+  transaction_date: string
+  amount: number
+  description: string
+  bank_name: string
+  row_hash: string
+  index: number
+}
+
 export function CsvUpload() {
   const [status, setStatus] = useState<UploadStatus>('idle')
   const [message, setMessage] = useState('')
   const [fileName, setFileName] = useState<string | null>(null)
   const [csvContent, setCsvContent] = useState<string>('')
+  const [columnMapping, setColumnMapping] = useState<ColumnMapping | null>(null)
   const [transactionCount, setTransactionCount] = useState(0)
+  const [newTransactions, setNewTransactions] = useState<Transaction[]>([])
+  const [duplicateTransactions, setDuplicateTransactions] = useState<Transaction[]>([])
 
   const convertXlsxToCsv = async (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -101,10 +114,11 @@ export function CsvUpload() {
 
   const handleMappingComplete = async (mapping: ColumnMapping) => {
     setStatus('processing')
-    setMessage('Behandler transaksjoner...')
+    setMessage('Sjekker for duplikater...')
+    setColumnMapping(mapping)
 
     try {
-      // Parse CSV and upload to backend with column mapping
+      // Step 1: Check for duplicates
       const response = await fetch('/api/upload-csv', {
         method: 'POST',
         headers: {
@@ -114,6 +128,49 @@ export function CsvUpload() {
           csvContent,
           fileName,
           columnMapping: mapping,
+          mode: 'check',
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Noe gikk galt')
+      }
+
+      // If duplicates found or user needs to review, show duplicate review
+      if (data.requiresReview || data.duplicateCount > 0) {
+        setNewTransactions(data.newTransactions || [])
+        setDuplicateTransactions(data.duplicateTransactions || [])
+        setStatus('reviewing')
+      } else {
+        // No duplicates, import all automatically
+        await handleImport(data.newTransactions)
+      }
+    } catch (error: any) {
+      console.error('Upload error:', error)
+      setStatus('error')
+      setMessage(error.message || 'Kunne ikke sjekke for duplikater. Prøv igjen.')
+    }
+  }
+
+  const handleImport = async (transactionsToImport: Transaction[]) => {
+    setStatus('processing')
+    setMessage('Importerer transaksjoner...')
+
+    try {
+      // Step 2: Import selected transactions
+      const response = await fetch('/api/upload-csv', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          csvContent,
+          fileName,
+          columnMapping,
+          mode: 'import',
+          transactionsToImport,
         }),
       })
 
@@ -127,10 +184,12 @@ export function CsvUpload() {
       setTransactionCount(data.count)
       setMessage(`✓ ${data.count} transaksjoner importert!`)
       setCsvContent('')
+      setNewTransactions([])
+      setDuplicateTransactions([])
     } catch (error: any) {
-      console.error('Upload error:', error)
+      console.error('Import error:', error)
       setStatus('error')
-      setMessage(error.message || 'Kunne ikke laste opp filen. Prøv igjen.')
+      setMessage(error.message || 'Kunne ikke importere transaksjoner. Prøv igjen.')
     }
   }
 
@@ -141,11 +200,24 @@ export function CsvUpload() {
     setMessage('')
   }
 
+  const handleReviewCancel = () => {
+    setStatus('idle')
+    setCsvContent('')
+    setFileName(null)
+    setMessage('')
+    setNewTransactions([])
+    setDuplicateTransactions([])
+    setColumnMapping(null)
+  }
+
   const resetUpload = () => {
     setStatus('idle')
     setMessage('')
     setFileName(null)
     setTransactionCount(0)
+    setNewTransactions([])
+    setDuplicateTransactions([])
+    setColumnMapping(null)
   }
 
   return (
@@ -156,6 +228,16 @@ export function CsvUpload() {
           csvContent={csvContent}
           onMappingComplete={handleMappingComplete}
           onCancel={handleMappingCancel}
+        />
+      )}
+
+      {/* Duplicate Review Dialog */}
+      {status === 'reviewing' && (
+        <DuplicateReview
+          newTransactions={newTransactions}
+          duplicateTransactions={duplicateTransactions}
+          onImport={handleImport}
+          onCancel={handleReviewCancel}
         />
       )}
 

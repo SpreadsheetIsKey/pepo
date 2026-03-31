@@ -175,6 +175,78 @@ Target users: Norwegian bank customers (DNB, Nordea, Sparebank 1).
 
 ---
 
+### T-06: Transaction Deduplication ✅
+**Date:** March 31, 2026
+**Status:** Complete
+
+**What was done:**
+1. **API Enhancement (Two-Step Import Process):**
+   - Modified upload API to support "check" and "import" modes
+   - "Check" mode: Analyzes CSV for duplicates without importing
+   - "Import" mode: Saves only user-selected transactions
+   - Fetches all existing row_hashes for user to compare against new transactions
+
+2. **Duplicate Detection Logic:**
+   - Uses existing row_hash field (MD5 of user_id|date|amount|description)
+   - Queries user's transactions and compares hashes in memory
+   - Separates transactions into "new" and "duplicate" lists
+   - Returns counts and full transaction details for review
+
+3. **Duplicate Review Component:**
+   - Interactive modal displaying statistics and transaction lists
+   - Summary cards: new count, duplicate count, selected count
+   - Color-coded tables: green for new, yellow for duplicates
+   - Individual checkbox selection per transaction
+   - Bulk actions: select all / deselect all
+   - Default behavior: auto-selects new, deselects duplicates
+   - Manual override capability for all transactions
+
+4. **Updated Upload Flow:**
+   - Step 1: User uploads file
+   - Step 2: Column mapping
+   - Step 3: Duplicate check runs automatically
+   - Step 4: If duplicates found, show review screen
+   - Step 5: User selects transactions to import
+   - Step 6: Import only selected transactions
+
+**Files created:**
+- `components/duplicate-review.tsx` - Interactive duplicate review UI
+
+**Files modified:**
+- `app/api/upload-csv/route.ts` - Added two-step import with duplicate detection
+- `components/csv-upload.tsx` - Added review state and handlers
+
+**Testing:**
+- Successfully tested with real DNB Excel file
+- Confirmed duplicate detection works when uploading same file twice
+- Verified user can manually select/deselect any transaction
+- Tested bulk selection actions
+
+**Key decisions:**
+- In-memory hash comparison instead of complex SQL queries
+  - Rationale: Simpler, avoids Supabase .in() query issues with large arrays
+  - Performance: Acceptable for typical user transaction volumes (< 10k)
+- Auto-select new, auto-deselect duplicates
+  - Rationale: Most common use case, reduces clicks for users
+  - Override available for edge cases
+- Show all transactions in review, not just duplicates
+  - Rationale: Gives user complete control, transparency about what will be imported
+
+**Challenges overcome:**
+1. **Supabase query error with .in() clause:**
+   - Problem: "Bad Request" error when using .in() with row_hash array
+   - Solution: Fetch all user hashes, compare in memory (simpler and more reliable)
+
+2. **State management for multi-step flow:**
+   - Problem: Need to maintain csvContent, columnMapping, and transaction lists across states
+   - Solution: Added all necessary state variables and proper reset handlers
+
+**User feedback:**
+- Request: Add sorting and filtering to duplicate dialogue for easier navigation
+- Status: Noted in technical debt for future enhancement
+
+---
+
 ## Upcoming Work
 
 ### T-05: PDF Upload & Parse (Optional - "Should")
@@ -253,6 +325,7 @@ Target users: Norwegian bank customers (DNB, Nordea, Sparebank 1).
 - [ ] Consider i18n for other Nordic countries
 - [ ] Mobile-responsive testing and improvements
 - [ ] Accessibility audit (WCAG 2.1 AA compliance)
+- [ ] **T-06 Enhancement:** Add sorting and filtering to duplicate review dialogue for easier navigation with large transaction sets
 
 ---
 

@@ -483,6 +483,75 @@ categories:
 
 ---
 
+### T-10: Transaction List View ✅
+**Date:** March 31, 2026
+**Status:** Complete
+
+**What was done:**
+1. **Month Grouping:**
+   - Transactions automatically grouped by month
+   - Month headers with Norwegian month names (e.g., "mars 2026")
+   - Sorted descending (newest first)
+   - Gray background for month headers
+
+2. **Category Filtering:**
+   - Dropdown showing all categories present in transactions
+   - Special "Ukategorisert" option to show only uncategorized
+   - Shows count of uncategorized transactions in dropdown
+   - Filters update transaction display instantly
+
+3. **Month Filtering:**
+   - Dropdown showing all months with transactions
+   - Norwegian month formatting
+   - Sorted newest to oldest
+   - Combined with category filter for precise viewing
+
+4. **Uncategorized Transaction Highlighting:**
+   - Amber/yellow background on uncategorized rows (bg-amber-50)
+   - Warning icon (⚠️) next to "Ikke kategorisert" label
+   - Badge in header showing total uncategorized count
+   - One-click filter to show only uncategorized transactions
+
+5. **Filter Counter:**
+   - Shows "X av Y transaksjoner" below filters
+   - Updates dynamically as filters change
+   - Empty state message when no matches
+
+**Files modified:**
+- `components/transaction-list.tsx` - Enhanced with filtering and grouping
+
+**Key decisions:**
+- Client-side filtering for instant response
+  - Rationale: Already fetching all transactions (limit 100), no server round-trip needed
+- Month grouping with headers instead of column
+  - Rationale: Better visual separation, clearer monthly context
+- Amber/yellow for uncategorized instead of red
+  - Rationale: Not an error, just needs attention
+- Combined filters instead of tabs
+  - Rationale: More flexible (can combine month + category)
+
+**Testing:**
+- TypeScript compilation successful
+- Renders without errors
+- Filters work correctly (tested in dev mode)
+- Month grouping displays properly
+
+**User Experience:**
+- Quick access to uncategorized transactions (one click)
+- Easy month-by-month review
+- Filter by specific category to see spending patterns
+- Visual hierarchy makes scanning easy
+
+**Future enhancements (not MVP):**
+- Search by description text
+- Date range picker (start/end date)
+- Amount range filter (min/max)
+- Multiple category selection
+- Export filtered transactions to CSV
+- Sort by amount or description
+
+---
+
 ## Upcoming Work
 
 ### T-05: PDF Upload & Parse (Optional - "Should")

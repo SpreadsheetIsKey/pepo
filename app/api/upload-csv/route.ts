@@ -18,6 +18,15 @@ interface ColumnMapping {
   amountCombined: number | null
 }
 
+// Parse Norwegian number format to JavaScript number
+function parseNorwegianAmount(amountStr: string): number {
+  if (!amountStr) return 0
+  // Remove all spaces (thousands separator): "10 000,00" → "10000,00"
+  // Replace comma with dot (decimal separator): "10000,00" → "10000.00"
+  const normalized = amountStr.trim().replace(/\s/g, '').replace(',', '.')
+  return parseFloat(normalized) || 0
+}
+
 // Parse date to YYYY-MM-DD format
 function parseDate(dateStr: string): string {
   // Clean the string
@@ -110,19 +119,19 @@ function parseCSVWithMapping(csvText: string, mapping: ColumnMapping): ParsedTra
     // Calculate amount based on mapping
     if (mapping.amountCombined !== null) {
       // Single amount column (negative = expense, positive = income)
-      const amountStr = cells[mapping.amountCombined]?.replace(',', '.') || '0'
-      amount = parseFloat(amountStr)
+      const amountStr = cells[mapping.amountCombined] || '0'
+      amount = parseNorwegianAmount(amountStr)
     } else {
       // Separate in/out columns
       const amountInStr = mapping.amountIn !== null
-        ? cells[mapping.amountIn]?.replace(',', '.') || '0'
+        ? cells[mapping.amountIn] || '0'
         : '0'
       const amountOutStr = mapping.amountOut !== null
-        ? cells[mapping.amountOut]?.replace(',', '.') || '0'
+        ? cells[mapping.amountOut] || '0'
         : '0'
 
-      const amountIn = parseFloat(amountInStr)
-      const amountOut = parseFloat(amountOutStr)
+      const amountIn = parseNorwegianAmount(amountInStr)
+      const amountOut = parseNorwegianAmount(amountOutStr)
 
       // Positive for income, negative for expenses
       amount = amountIn > 0 ? amountIn : -Math.abs(amountOut)
